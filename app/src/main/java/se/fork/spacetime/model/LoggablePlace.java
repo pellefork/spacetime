@@ -1,8 +1,12 @@
 package se.fork.spacetime.model;
 
+import android.util.Log;
+
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+
+import se.fork.spacetime.utils.FlatEarthDist;
 
 /**
  * Created by per.fork on 2017-12-27.
@@ -19,8 +23,10 @@ public class LoggablePlace {
     private double southBoundary;
     private double westBoundary;
     private boolean enabled;
+    private double radius;
 
     public LoggablePlace() {
+        this.radius = 80d;
     }
 
     public LoggablePlace(Place place) {
@@ -32,15 +38,17 @@ public class LoggablePlace {
         this.northBoundary = place.getViewport().northeast.latitude;
         this.eastBoundary = place.getViewport().northeast.longitude;
         this.southBoundary = place.getViewport().southwest.latitude;
-        this.northBoundary = place.getViewport().southwest.longitude;
+        this.westBoundary = place.getViewport().southwest.longitude;
         this.enabled = true;
+
+        this.radius = 80d;
     }
 
     public boolean isInPlace(LatLng pos) {
-        LatLng northeast = new LatLng(northBoundary, eastBoundary);
-        LatLng southwest = new LatLng(southBoundary, westBoundary);
-        LatLngBounds bounds = new LatLngBounds(northeast, southwest);
-        return bounds.contains(pos);
+        LatLng myPos = new LatLng(latitude, longitude);
+        double dist = FlatEarthDist.distance(myPos, pos);
+        Log.d(this.getClass().getSimpleName(), "isInPlace: dist = " + dist + ", radius = " + radius + ", isInPlace = " + (dist < radius));
+        return dist < radius;
     }
 
     public String getId() {
