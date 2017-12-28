@@ -1,6 +1,7 @@
 package se.fork.spacetime.model;
 
 import com.google.android.gms.location.places.Place;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
 /**
@@ -33,6 +34,13 @@ public class LoggablePlace {
         this.southBoundary = place.getViewport().southwest.latitude;
         this.northBoundary = place.getViewport().southwest.longitude;
         this.enabled = true;
+    }
+
+    public boolean isInPlace(LatLng pos) {
+        LatLng northeast = new LatLng(northBoundary, eastBoundary);
+        LatLng southwest = new LatLng(southBoundary, westBoundary);
+        LatLngBounds bounds = new LatLngBounds(northeast, southwest);
+        return bounds.contains(pos);
     }
 
     public String getId() {

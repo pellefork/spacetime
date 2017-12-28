@@ -6,7 +6,7 @@
 
     <TableRow
         android:paddingTop="@dimen/fab_margin">
-        
+
         <LinearLayout android:orientation="vertical">
 
             <TextView

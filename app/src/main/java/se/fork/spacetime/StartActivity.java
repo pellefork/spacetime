@@ -1,11 +1,23 @@
 package se.fork.spacetime;
 
+import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -45,11 +57,34 @@ public class StartActivity extends FragmentActivity
     private ListView listView;
     private PlaceListAdapter listAdapter;
     private boolean isListDirty;
+    // A reference to the service used to get location updates.
+    private LogPlacesByLocationService mService = null;
+    // The BroadcastReceiver used to listen from broadcasts from the service.
+    private MyReceiver myReceiver;
+    // Tracks the bound state of the service.
+    private boolean mBound = false;
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            LogPlacesByLocationService.LocalBinder binder = (LogPlacesByLocationService.LocalBinder) service;
+            mService = binder.getService();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mService = null;
+            mBound = false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
+        checkPermission();
+        myReceiver = new MyReceiver();
         listSpinner = findViewById(R.id.placelist_spinner);
         listSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -71,6 +106,47 @@ public class StartActivity extends FragmentActivity
             currentListKey = LocalStorage.getInstance().getMyPlaceLists(this).getKeys().get(0);
             currentList = LocalStorage.getInstance().getLoggablePlaceList(this, currentListKey);
         }
+        // LogPlacePresenceJob.schedulePeriodic();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Bind to the service. If the service is in foreground mode, this signals to the service
+        // that since this activity is in the foreground, the service can exit foreground mode.
+        bindService(new Intent(this, LogPlacesByLocationService.class), mServiceConnection,
+                Context.BIND_AUTO_CREATE);
+    }
+
+
+    public void checkPermission(){
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED
+                ){//Can add more as per requirement
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,android.Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.BLUETOOTH},
+                    123);
+        }
+    }
+
+    /**
+     * Receiver for broadcasts sent by {@link LogPlacesByLocationService}.
+     */
+    private class MyReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Location location = intent.getParcelableExtra(LogPlacesByLocationService.EXTRA_LOCATION);
+            if (location != null) {
+                Toast.makeText(StartActivity.this, location.toString(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    public void runJobImmediately(View view) {
+        mService.requestLocationUpdates();
     }
 
     private void setupPlaceList() {
@@ -82,10 +158,30 @@ public class StartActivity extends FragmentActivity
     @Override
     protected void onResume() {
         super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver,
+                new IntentFilter(LogPlacesByLocationService.ACTION_BROADCAST));
         LocalStorage.getInstance().logAll(this);
         populatePlaceListSpinner();
         setupPlaceList();
         isListDirty = false;
+    }
+
+    @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        if (mBound) {
+            // Unbind from the service. This signals to the service that this activity is no longer
+            // in the foreground, and the service can respond by promoting itself to a foreground
+            // service.
+            unbindService(mServiceConnection);
+            mBound = false;
+        }
+        super.onStop();
     }
 
     private void populatePlaceListSpinner() {
