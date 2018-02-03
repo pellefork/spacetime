@@ -3,4 +3,6 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="colorPresentRowPositive">#c8e6c9</color>
+    <color name="colorPresentRowNegative">#fffde7</color>
 </resources>

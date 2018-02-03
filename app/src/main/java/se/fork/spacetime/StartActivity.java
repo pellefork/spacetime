@@ -45,6 +45,7 @@ import java.util.List;
 import se.fork.spacetime.model.LoggablePlace;
 import se.fork.spacetime.model.LoggablePlaceList;
 import se.fork.spacetime.model.MyPlaceLists;
+import se.fork.spacetime.model.Presence;
 import se.fork.spacetime.utils.LocalStorage;
 
 public class StartActivity extends FragmentActivity
@@ -54,6 +55,7 @@ public class StartActivity extends FragmentActivity
     private Spinner listSpinner;
     private String currentListKey;
     private LoggablePlaceList currentList;
+    private Presence presence;
     private ListView listView;
     private PlaceListAdapter listAdapter;
     private boolean isListDirty;
@@ -142,6 +144,12 @@ public class StartActivity extends FragmentActivity
                 Toast.makeText(StartActivity.this, location.toString(),
                         Toast.LENGTH_SHORT).show();
             }
+            presence = intent.getParcelableExtra(LogPlacesByLocationService.EXTRA_PRESENCE);
+            if (location != null) {
+                Toast.makeText(StartActivity.this, presence.toString(),
+                        Toast.LENGTH_SHORT).show();
+            }
+            listAdapter.notifyDataSetChanged();
         }
     }
 
@@ -277,9 +285,17 @@ public class StartActivity extends FragmentActivity
                 view = getLayoutInflater().inflate(R.layout.listitem_place, viewGroup, false);
             final LoggablePlace loggablePlace = getItem(i);
             if(loggablePlace != null) {
+                View row = view.findViewById(R.id.row);
                 TextView nameView = view.findViewById(R.id.name);
                 TextView addressView = view.findViewById(R.id.address);
                 final Switch enabledView = view.findViewById(R.id.enabled);
+                if (presence != null) {
+                    if(presence.getPresentPlaces().contains(loggablePlace.getId())) {
+                        row.setBackgroundColor(getResources().getColor(R.color.colorPresentRowPositive));
+                    } else {
+                        row.setBackgroundColor(getResources().getColor(R.color.colorPresentRowNegative));
+                    }
+                }
                 nameView.setText(loggablePlace.getName());
                 addressView.setText(loggablePlace.getAddress());
                 enabledView.setChecked(loggablePlace.isEnabled());

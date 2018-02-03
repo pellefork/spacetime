@@ -34,10 +34,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import se.fork.spacetime.model.LoggablePlace;
 import se.fork.spacetime.model.LoggablePlaceList;
+import se.fork.spacetime.model.Presence;
 import se.fork.spacetime.utils.LocalStorage;
 
 public class LogPlacesByLocationService extends Service {
@@ -58,6 +60,8 @@ public class LogPlacesByLocationService extends Service {
     static final String ACTION_BROADCAST = PACKAGE_NAME + ".broadcast";
 
     static final String EXTRA_LOCATION = PACKAGE_NAME + ".location";
+    static final String EXTRA_PRESENCE = PACKAGE_NAME + ".presence";
+
     private static final String EXTRA_STARTED_FROM_NOTIFICATION = PACKAGE_NAME +
             ".started_from_notification";
 
@@ -309,12 +313,13 @@ public class LogPlacesByLocationService extends Service {
         Log.i(TAG, "New location: " + location);
 
         mLocation = location;
-
-        handleNewLocation(location);
+        Presence presence = handleNewLocation(location);
 
         // Notify anyone listening for broadcasts about the new location.
         Intent intent = new Intent(ACTION_BROADCAST);
         intent.putExtra(EXTRA_LOCATION, location);
+        intent.putExtra(EXTRA_PRESENCE, presence);
+
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
 
         // Update notification content if running as a foreground service.
@@ -323,22 +328,30 @@ public class LogPlacesByLocationService extends Service {
         }
     }
 
-    private void handleNewLocation(Location location) {
+    private Presence handleNewLocation(Location location) {
+        Presence presence = null;
         LatLng pos = new LatLng(location.getLatitude(), location.getLongitude());
         if(pos != null) {
+            List<String> presentPlaces = new ArrayList<>();
             List<String> keys = LocalStorage.getInstance().getMyPlaceLists(this).getKeys();
             for(String key: keys) {
                 LoggablePlaceList placeList = LocalStorage.getInstance().getLoggablePlaceList(this, key);
                 for(LoggablePlace place: placeList.getLoggablePlaces()) {
                     if(place.isEnabled()) {
-                        logPresence(place, pos);
+                        boolean inPlace = place.isInPlace(pos);
+                        logPresence(place, pos, inPlace);
+                        if (inPlace) {
+                            presentPlaces.add(place.getId());
+                        }
                     }
                 }
             }
+            presence = new Presence(presentPlaces);
         }
+        return presence;
     }
 
-    private void logPresence(LoggablePlace place, LatLng pos) {
+    private void logPresence(LoggablePlace place, LatLng pos, boolean inPlace) {
         if(place.isInPlace(pos)) {
             Log.d(TAG, "+++++ Presence " + pos + " positive in " + place);
         } else {

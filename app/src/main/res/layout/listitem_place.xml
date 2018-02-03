@@ -5,6 +5,7 @@
     android:stretchColumns="1">
 
     <TableRow
+        android:id="@+id/row"
         android:paddingTop="@dimen/fab_margin">
 
         <LinearLayout android:orientation="vertical">

@@ -1,5 +1,6 @@
 package se.fork.spacetime.model;
 
+import android.os.Parcelable;
 import android.util.Log;
 
 import com.google.android.gms.location.places.Place;
@@ -18,10 +19,6 @@ public class LoggablePlace {
     private double longitude;
     private String name;
     private String address;
-    private double northBoundary;
-    private double eastBoundary;
-    private double southBoundary;
-    private double westBoundary;
     private boolean enabled;
     private double radius;
 
@@ -35,12 +32,8 @@ public class LoggablePlace {
         this.address = (String) place.getAddress();
         this.latitude = place.getLatLng().latitude;
         this.longitude = place.getLatLng().longitude;
-        this.northBoundary = place.getViewport().northeast.latitude;
-        this.eastBoundary = place.getViewport().northeast.longitude;
-        this.southBoundary = place.getViewport().southwest.latitude;
-        this.westBoundary = place.getViewport().southwest.longitude;
         this.enabled = true;
-
+        // TODO Make radius editable
         this.radius = 80d;
     }
 
@@ -91,44 +84,20 @@ public class LoggablePlace {
         this.name = name;
     }
 
-    public double getNorthBoundary() {
-        return northBoundary;
-    }
-
-    public void setNorthBoundary(double northBoundary) {
-        this.northBoundary = northBoundary;
-    }
-
-    public double getEastBoundary() {
-        return eastBoundary;
-    }
-
-    public void setEastBoundary(double eastBoundary) {
-        this.eastBoundary = eastBoundary;
-    }
-
-    public double getSouthBoundary() {
-        return southBoundary;
-    }
-
-    public void setSouthBoundary(double southBoundary) {
-        this.southBoundary = southBoundary;
-    }
-
-    public double getWestBoundary() {
-        return westBoundary;
-    }
-
-    public void setWestBoundary(double westBoundary) {
-        this.westBoundary = westBoundary;
-    }
-
     public boolean isEnabled() {
         return enabled;
     }
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public double getRadius() {
+        return radius;
+    }
+
+    public void setRadius(double radius) {
+        this.radius = radius;
     }
 
     @Override
@@ -138,10 +107,6 @@ public class LoggablePlace {
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 ", name='" + name + '\'' +
-                ", northBoundary=" + northBoundary +
-                ", eastBoundary=" + eastBoundary +
-                ", southBoundary=" + southBoundary +
-                ", westBoundary=" + westBoundary +
                 ", enabled=" + enabled +
                 '}';
     }
