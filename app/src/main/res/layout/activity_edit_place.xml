@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="@dimen/fab_margin"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/title"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:paddingBottom="@dimen/fab_margin"
+        android:text="@string/editplace_title"/>
+
+
+    <TextView
+        android:id="@+id/name_caption"
+        android:layout_below="@id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/editplace_name"/>
+
+    <EditText
+        android:id="@+id/name_view"
+        android:layout_below="@id/name_caption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/address_caption"
+        android:layout_below="@id/name_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/editplace_address"/>
+
+    <EditText
+        android:id="@+id/address_view"
+        android:layout_below="@id/address_caption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/latitude_caption"
+        android:layout_below="@id/address_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/editplace_latitude"/>
+
+    <TextView
+        android:id="@+id/latitude_view"
+        android:layout_below="@id/latitude_caption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/longitude_caption"
+        android:layout_below="@id/latitude_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/editplace_longitude"/>
+
+    <TextView
+        android:id="@+id/longitude_view"
+        android:layout_below="@id/longitude_caption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/radius_caption"
+        android:layout_below="@id/longitude_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/editplace_radius"/>
+
+    <EditText
+        android:id="@+id/radius_view"
+        android:layout_below="@id/radius_caption"
+        android:inputType="numberDecimal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/cancel_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:text="@string/editplace_cancel"
+        />
+
+    <Button
+        android:id="@+id/save_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="@string/editplace_save"
+        />
+
+
+</RelativeLayout>

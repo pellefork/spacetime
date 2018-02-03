@@ -40,6 +40,8 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import se.fork.spacetime.model.LoggablePlace;
@@ -52,9 +54,11 @@ public class StartActivity extends FragmentActivity
         implements GoogleApiClient.OnConnectionFailedListener {
 
     private static final int PLACE_PICKER_REQUEST = 1;
+    private static final int EDIT_PLACE_REQUEST = 2;
     private Spinner listSpinner;
     private String currentListKey;
     private LoggablePlaceList currentList;
+    private List<String> currentListKeys;
     private Presence presence;
     private ListView listView;
     private PlaceListAdapter listAdapter;
@@ -158,6 +162,10 @@ public class StartActivity extends FragmentActivity
     }
 
     private void setupPlaceList() {
+        currentListKeys = new LinkedList();
+        for (String key: currentList.getLoggablePlaces().keySet()) {
+            currentListKeys.add(key);
+        }
         listView = findViewById(R.id.place_list);
         listAdapter = new PlaceListAdapter();
         listView.setAdapter(listAdapter);
@@ -228,11 +236,16 @@ public class StartActivity extends FragmentActivity
                 Toast.makeText(this, toastMsg, Toast.LENGTH_LONG).show();
                 saveNewLoggablePlace(place);
             }
+        } else if (requestCode == EDIT_PLACE_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                currentList = LocalStorage.getInstance().getLoggablePlaceList(this, currentListKey);
+                listAdapter.notifyDataSetChanged();
+            }
         }
     }
 
     private void saveNewLoggablePlace(Place place) {
-        currentList.getLoggablePlaces().add(new LoggablePlace(place));
+        currentList.getLoggablePlaces().put(place.getId(), new LoggablePlace(place));
         LocalStorage.getInstance().saveLoggablePlaceList(currentList, this);
         LocalStorage.getInstance().logAll(this);
     }
@@ -262,6 +275,8 @@ public class StartActivity extends FragmentActivity
         currentList = loggablePlaceList;
     }
 
+
+
     private class PlaceListAdapter extends BaseAdapter {
 
         @Override
@@ -271,12 +286,13 @@ public class StartActivity extends FragmentActivity
 
         @Override
         public LoggablePlace getItem(int i) {
-            return currentList.getLoggablePlaces().get(i);
+            return currentList.getLoggablePlaces().get(currentListKeys.get(i));
+
         }
 
         @Override
         public long getItemId(int i) {
-            return currentList.getLoggablePlaces().get(i).getId().hashCode();
+            return getItem(i).getId().hashCode();
         }
 
         @Override
@@ -284,6 +300,7 @@ public class StartActivity extends FragmentActivity
             if (view == null)
                 view = getLayoutInflater().inflate(R.layout.listitem_place, viewGroup, false);
             final LoggablePlace loggablePlace = getItem(i);
+
             if(loggablePlace != null) {
                 View row = view.findViewById(R.id.row);
                 TextView nameView = view.findViewById(R.id.name);
@@ -304,6 +321,16 @@ public class StartActivity extends FragmentActivity
                     public void onClick(View view) {
                         loggablePlace.setEnabled(enabledView.isChecked());
                         isListDirty = true;
+                    }
+                });
+
+                row.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(StartActivity.this, EditPlaceActivity.class);
+                        intent.putExtra("current_list", currentListKey);
+                        intent.putExtra("place", loggablePlace.getId());
+                        startActivityForResult(intent, EDIT_PLACE_REQUEST);
                     }
                 });
             }

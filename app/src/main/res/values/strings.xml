@@ -3,5 +3,16 @@
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_start">StartActivity</string>
 
+    <string name="editplace_title">Edit place</string>
+
+    <string name="editplace_name">Place name</string>
+    <string name="editplace_address">Address</string>
+    <string name="editplace_latitude">Latitude</string>
+    <string name="editplace_longitude">Longitude</string>
+
+    <string name="editplace_radius">Radius in meters (to count as within)</string>
+
+    <string name="editplace_save">Save</string>
+    <string name="editplace_cancel">Cancel</string>
 
 </resources>

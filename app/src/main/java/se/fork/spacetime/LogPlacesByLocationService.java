@@ -336,7 +336,7 @@ public class LogPlacesByLocationService extends Service {
             List<String> keys = LocalStorage.getInstance().getMyPlaceLists(this).getKeys();
             for(String key: keys) {
                 LoggablePlaceList placeList = LocalStorage.getInstance().getLoggablePlaceList(this, key);
-                for(LoggablePlace place: placeList.getLoggablePlaces()) {
+                for(LoggablePlace place: placeList.getLoggablePlaces().values()) {
                     if(place.isEnabled()) {
                         boolean inPlace = place.isInPlace(pos);
                         logPresence(place, pos, inPlace);

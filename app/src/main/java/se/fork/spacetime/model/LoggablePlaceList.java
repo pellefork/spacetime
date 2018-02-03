@@ -2,7 +2,9 @@ package se.fork.spacetime.model;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by per.fork on 2017-12-27.
@@ -13,7 +15,7 @@ public class LoggablePlaceList {
     private String name;
     private String key;
     private Date createdTimeStamp;
-    private List<LoggablePlace> loggablePlaces;
+    private Map<String,LoggablePlace> loggablePlaces;
 
     public LoggablePlaceList() {
     }
@@ -21,7 +23,7 @@ public class LoggablePlaceList {
     public LoggablePlaceList(String name) {
         this.name = name;
         this.key = KEY_PREFIX + name.replaceAll( " ", "_");
-        loggablePlaces = new ArrayList<>();
+        loggablePlaces = new LinkedHashMap<>();
         createdTimeStamp = new Date();
     }
 
@@ -49,11 +51,11 @@ public class LoggablePlaceList {
         this.createdTimeStamp = createdTimeStamp;
     }
 
-    public List<LoggablePlace> getLoggablePlaces() {
+    public Map<String, LoggablePlace> getLoggablePlaces() {
         return loggablePlaces;
     }
 
-    public void setLoggablePlaces(List<LoggablePlace> loggablePlaces) {
+    public void setLoggablePlaces(Map<String, LoggablePlace> loggablePlaces) {
         this.loggablePlaces = loggablePlaces;
     }
 
