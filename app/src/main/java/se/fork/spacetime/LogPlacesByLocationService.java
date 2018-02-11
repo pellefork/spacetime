@@ -35,8 +35,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import se.fork.spacetime.database.PlaceLogEntry;
+import se.fork.spacetime.database.SpacetimeDatabase;
 import se.fork.spacetime.model.LoggablePlace;
 import se.fork.spacetime.model.LoggablePlaceList;
 import se.fork.spacetime.model.Presence;
@@ -340,6 +343,7 @@ public class LogPlacesByLocationService extends Service {
                     if(place.isEnabled()) {
                         boolean inPlace = place.isInPlace(pos);
                         logPresence(place, pos, inPlace);
+                        addLogEntry(placeList, place, inPlace);
                         if (inPlace) {
                             presentPlaces.add(place.getId());
                         }
@@ -359,7 +363,12 @@ public class LogPlacesByLocationService extends Service {
         }
     }
 
-
+    private void addLogEntry(LoggablePlaceList list, LoggablePlace place, boolean inPlace) {
+        PlaceLogEntry entry = new PlaceLogEntry(place.getId(), place.getName(), list.getName(), inPlace, new Date().getTime());
+        SpacetimeDatabase db = SpacetimeDatabase.getSpacetimeDatabase(this);
+        db.placeLogEntryDao().insertAll(entry);
+        Log.d(this.getClass().getSimpleName(), "addLogEntry: Wrote to db: " + entry);
+    }
 
     /**
      * Sets the location request parameters.

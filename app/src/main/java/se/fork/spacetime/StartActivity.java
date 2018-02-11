@@ -227,6 +227,10 @@ public class StartActivity extends FragmentActivity
         }
     }
 
+    public void invokeReport (View view) {
+        startActivity(new Intent(this, ReportActivity.class));
+    }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PLACE_PICKER_REQUEST) {
             if (resultCode == RESULT_OK) {

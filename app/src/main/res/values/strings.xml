@@ -15,4 +15,7 @@
     <string name="editplace_save">Save</string>
     <string name="editplace_cancel">Cancel</string>
 
+    <string name="report_status_in">In</string>
+    <string name="report_status_out">Out</string>
+
 </resources>

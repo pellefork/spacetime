@@ -18,20 +18,24 @@
     <ListView
         android:id="@+id/place_list"
         android:layout_below="@+id/placelist_spinner"
-        android:layout_above="@+id/map"
         android:padding="@dimen/fab_margin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
     </ListView>
 
+    <LinearLayout
+        android:id="@+id/bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true">
+
+
     <Button
         android:id="@+id/map"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_margin="@dimen/fab_margin"
         android:onClick="invokeMap"
         android:text="Map"/>
 
@@ -39,21 +43,25 @@
         android:id="@+id/job"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="@dimen/fab_margin"
         android:onClick="runJobImmediately"
-        android:text="Run Job Now"/>
+        android:text="Run"/>
 
-    <Button
-        android:id="@+id/place_picker"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_margin="@dimen/fab_margin"
-        android:onClick="invokePlacepicker"
-        android:text="Placepicker"
-        />
+        <Button
+            android:id="@+id/place_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="invokePlacepicker"
+            android:text="Placepicker"
+            />
+
+        <Button
+            android:id="@+id/report"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="invokeReport"
+            android:text="Report"
+            />
+
+    </LinearLayout>
 
 </RelativeLayout>
