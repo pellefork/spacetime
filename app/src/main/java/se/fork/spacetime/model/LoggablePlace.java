@@ -21,6 +21,7 @@ public class LoggablePlace {
     private String address;
     private boolean enabled;
     private double radius;
+    private boolean inside;
 
     public LoggablePlace() {
         this.radius = 80d;
@@ -33,14 +34,14 @@ public class LoggablePlace {
         this.latitude = place.getLatLng().latitude;
         this.longitude = place.getLatLng().longitude;
         this.enabled = true;
-        // TODO Make radius editable
         this.radius = 80d;
+        this.inside = false;
     }
 
-    public boolean isInPlace(LatLng pos) {
+    public boolean isInGivenPosition(LatLng pos) {
         LatLng myPos = new LatLng(latitude, longitude);
         double dist = FlatEarthDist.distance(myPos, pos);
-        Log.d(this.getClass().getSimpleName(), "isInPlace: dist = " + dist + ", radius = " + radius + ", isInPlace = " + (dist < radius));
+        Log.d(this.getClass().getSimpleName(), "isInGivenPosition: dist = " + dist + ", radius = " + radius + ", isInGivenPosition = " + (dist < radius));
         return dist < radius;
     }
 
@@ -100,6 +101,14 @@ public class LoggablePlace {
         this.radius = radius;
     }
 
+    public boolean isInside() {
+        return inside;
+    }
+
+    public void setInside(boolean inside) {
+        this.inside = inside;
+    }
+
     @Override
     public String toString() {
         return "LoggablePlace{" +
@@ -107,7 +116,10 @@ public class LoggablePlace {
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 ", name='" + name + '\'' +
+                ", address='" + address + '\'' +
                 ", enabled=" + enabled +
+                ", radius=" + radius +
+                ", inside=" + inside +
                 '}';
     }
 }

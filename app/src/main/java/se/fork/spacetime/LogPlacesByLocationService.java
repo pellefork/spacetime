@@ -8,16 +8,13 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.IBinder;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
@@ -341,9 +338,13 @@ public class LogPlacesByLocationService extends Service {
                 LoggablePlaceList placeList = LocalStorage.getInstance().getLoggablePlaceList(this, key);
                 for(LoggablePlace place: placeList.getLoggablePlaces().values()) {
                     if(place.isEnabled()) {
-                        boolean inPlace = place.isInPlace(pos);
+                        boolean inPlace = place.isInGivenPosition(pos);
                         logPresence(place, pos, inPlace);
-                        addLogEntry(placeList, place, inPlace);
+                        if (place.isInside() != inPlace) {  // Only log changed insideness
+                            addLogEntry(placeList, place, inPlace);
+                            place.setInside(inPlace);
+                            LocalStorage.getInstance().saveLoggablePlaceList(placeList, this);
+                        }
                         if (inPlace) {
                             presentPlaces.add(place.getId());
                         }
@@ -356,7 +357,7 @@ public class LogPlacesByLocationService extends Service {
     }
 
     private void logPresence(LoggablePlace place, LatLng pos, boolean inPlace) {
-        if(place.isInPlace(pos)) {
+        if(place.isInGivenPosition(pos)) {
             Log.d(TAG, "+++++ Presence " + pos + " positive in " + place);
         } else {
             Log.d(TAG, "----- Presence " + pos + " negative in " + place);
