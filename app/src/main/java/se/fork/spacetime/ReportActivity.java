@@ -1,6 +1,8 @@
 package se.fork.spacetime;
 
 import android.app.Activity;
+import android.content.Context;
+import android.database.DataSetObserver;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.ExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -19,11 +23,15 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import se.fork.spacetime.adapters.PlaceReportExpandableListAdapter;
 import se.fork.spacetime.database.PlaceLogEntry;
 import se.fork.spacetime.database.SpacetimeDatabase;
+import se.fork.spacetime.model.LoggablePlace;
 import se.fork.spacetime.model.LoggablePlaceList;
 import se.fork.spacetime.model.MyPlaceLists;
+import se.fork.spacetime.model.PlaceReport;
 import se.fork.spacetime.utils.LocalStorage;
+import se.fork.spacetime.utils.Reporter;
 
 public class ReportActivity extends Activity {
 
@@ -32,14 +40,17 @@ public class ReportActivity extends Activity {
     private LoggablePlaceList currentList;
     private List<String> currentListKeys;
     private ListView listView;
-    private LogListAdapter listAdapter;
-    private List<PlaceLogEntry> logEntryList;
+    // private LogListAdapter listAdapter;
+    private ExpandableListAdapter expandableListAdapter;
+    private ExpandableListView expandableListView;
+    private List<PlaceReport> reportList;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_report);
+        expandableListView = findViewById(R.id.expandable_list_view);
         listSpinner = findViewById(R.id.placelist_spinner);
         listSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -55,11 +66,6 @@ public class ReportActivity extends Activity {
 
             }
         });
-
-        ListView logListView = findViewById(R.id.log_list);
-        logEntryList = new LinkedList<>();
-        listAdapter = new LogListAdapter();
-        logListView.setAdapter(listAdapter);
     }
 
     @Override
@@ -67,7 +73,11 @@ public class ReportActivity extends Activity {
         super.onStart();
         populatePlaceListSpinner();
         SpacetimeDatabase db = SpacetimeDatabase.getSpacetimeDatabase(this);
-        new ReadLogDataTask(db).execute();
+        MyPlaceLists listLists = LocalStorage.getInstance().getMyPlaceLists(getApplicationContext());
+        currentListKey = listLists.getKeys().get(0);    // TODO Get value from spinner
+        currentList = LocalStorage.getInstance().getLoggablePlaceList(getApplicationContext(), currentListKey);
+
+        new ReadLogDataTask(this, db, currentList).execute();
     }
 
     private void populatePlaceListSpinner() {
@@ -84,26 +94,37 @@ public class ReportActivity extends Activity {
     private class ReadLogDataTask extends AsyncTask<Void, Void, Void> {
 
         private final SpacetimeDatabase db;
+        private Context context;
+        private LoggablePlaceList placeList;
 
-        private ReadLogDataTask(SpacetimeDatabase db) { // TODO Consider list name as param for later
+        private ReadLogDataTask(Context context, SpacetimeDatabase db, LoggablePlaceList placeList) {
             this.db = db;
+            this.context = context;
+            this.placeList = placeList;
         }
 
 
         @Override
         protected Void doInBackground(Void... voids) {
-            logEntryList = db.placeLogEntryDao().getAll();
+            reportList = new LinkedList<>();
+            for (LoggablePlace place: currentList.getLoggablePlaces().values()) {
+                List<PlaceLogEntry> logEntryList = db.placeLogEntryDao().getAllByPlace(place.getId());
+                reportList.add(Reporter.getInstance().getPlaceReport(place, logEntryList, new Date(0).getTime(), new Date().getTime()));
+            }
+
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            listAdapter.notifyDataSetChanged();
+            expandableListAdapter = new PlaceReportExpandableListAdapter(context, new Date(0), new Date(), reportList);
+            expandableListView.setAdapter(expandableListAdapter);
         }
     }
 
+/*
     private class LogListAdapter extends BaseAdapter {
-        final String dateFormatString = "yyyy-MM-dd'T'HH:mm:ss";
+        final String dateFormatString = "yyyy-MM-dd HH:mm:ss";
         SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatString);
         @Override
         public int getCount() {
@@ -142,4 +163,5 @@ public class ReportActivity extends Activity {
             return convertView;
         }
     }
+*/
 }

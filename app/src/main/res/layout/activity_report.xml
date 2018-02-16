@@ -14,13 +14,13 @@
         android:layout_margin="@dimen/fab_margin"
         />
 
-    <ListView
-        android:id="@+id/log_list"
+    <ExpandableListView
+        android:id="@+id/expandable_list_view"
         android:layout_below="@+id/placelist_spinner"
-        android:padding="@dimen/fab_margin"
+        android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-    </ListView>
+        android:padding="@dimen/fab_margin"
+        android:divider="@android:color/darker_gray"
+        android:headerDividersEnabled="true" />
 
 </RelativeLayout>

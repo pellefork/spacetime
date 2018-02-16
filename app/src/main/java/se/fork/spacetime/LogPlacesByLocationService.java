@@ -52,6 +52,8 @@ public class LogPlacesByLocationService extends Service {
 
     private static final String TAG = LogPlacesByLocationService.class.getSimpleName();
 
+    public static final float ACCURACY_GOOD_EHOUGH = 200f;  // TODO Make this a setting in sharedprefs instead
+
     /**
      * The name of the channel for notifications.
      */
@@ -310,7 +312,7 @@ public class LogPlacesByLocationService extends Service {
     }
 
     private void onNewLocation(Location location) {
-        Log.i(TAG, "New location: " + location);
+        Log.i(TAG, "New location: " + location.toString());
 
         mLocation = location;
         Presence presence = handleNewLocation(location);
@@ -341,9 +343,11 @@ public class LogPlacesByLocationService extends Service {
                         boolean inPlace = place.isInGivenPosition(pos);
                         logPresence(place, pos, inPlace);
                         if (place.isInside() != inPlace) {  // Only log changed insideness
-                            addLogEntry(placeList, place, inPlace);
-                            place.setInside(inPlace);
-                            LocalStorage.getInstance().saveLoggablePlaceList(placeList, this);
+                            if (location.hasAccuracy() && location.getAccuracy() <= ACCURACY_GOOD_EHOUGH) {
+                                addLogEntry(placeList, place, inPlace);
+                                place.setInside(inPlace);
+                                LocalStorage.getInstance().saveLoggablePlaceList(placeList, this);
+                            }
                         }
                         if (inPlace) {
                             presentPlaces.add(place.getId());

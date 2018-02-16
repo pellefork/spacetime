@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/duration_legend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="@string/report_duration"/>
+
+        <TextView
+            android:id="@+id/duration"
+            android:layout_alignParentRight="true"
+            android:textSize="16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/in_legend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="6dp"
+            android:layout_below="@+id/duration_legend"
+            android:text="@string/report_status_in"/>
+
+        <TextView
+            android:id="@+id/in_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/duration_legend"
+            android:layout_toRightOf="@id/in_legend"
+            android:text="Mån 2018-02-28 00:00:00"/>
+
+        <TextView
+            android:id="@+id/out_legend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/out_date"
+            android:layout_marginRight="6dp"
+            android:layout_below="@+id/duration_legend"
+            android:text="@string/report_status_out"/>
+
+        <TextView
+            android:id="@+id/out_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/duration_legend"
+            android:layout_alignParentRight="true"
+            android:text="Mån 2018-02-28 00:00:00"/>
+
+    </RelativeLayout>
+
+
+</LinearLayout>
