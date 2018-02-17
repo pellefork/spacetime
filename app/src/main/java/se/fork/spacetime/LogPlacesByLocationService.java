@@ -146,6 +146,13 @@ public class LogPlacesByLocationService extends Service {
 
             // Set the Notification Channel for the Notification Manager.
             mNotificationManager.createNotificationChannel(mChannel);
+/*
+            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                    .setContentTitle("")
+                    .setContentText("").build();
+*/
+
+            startForeground(1, new Notification());
         }
     }
 
