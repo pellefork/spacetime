@@ -9,4 +9,7 @@
 
     <color name="bottomNavSelected">#f5f5f5</color>
     <color name="bottomNavDeselected">#e0e0e0</color>
+
+    <color name="powerFabOn">#7cb342</color>
+    <color name="powerFabOff">#e53935</color>
 </resources>

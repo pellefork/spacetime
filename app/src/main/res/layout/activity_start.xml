@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     tools:context="se.fork.spacetime.StartActivity">
+
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
 
     <Spinner
@@ -18,6 +22,7 @@
     <ListView
         android:id="@+id/place_list"
         android:layout_below="@+id/placelist_spinner"
+        android:layout_above="@id/bottom"
         android:padding="@dimen/fab_margin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -27,40 +32,10 @@
     <LinearLayout
         android:id="@+id/bottom"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:orientation="horizontal"
         android:layout_above="@id/bottom_navigation">
 
-
-    <Button
-        android:id="@+id/map"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="invokeMap"
-        android:text="Map"/>
-
-    <Button
-        android:id="@+id/job"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="runJobImmediately"
-        android:text="Run"/>
-
-        <Button
-            android:id="@+id/place_picker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="invokePlacepicker"
-            android:text="Placepicker"
-            />
-
-        <Button
-            android:id="@+id/report"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="invokeReport"
-            android:text="Report"
-            />
 
     </LinearLayout>
 
@@ -74,3 +49,25 @@
         app:itemTextColor="@color/colorBlack"
         app:menu="@menu/menu_bottom_nav" />
 </RelativeLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:clickable="true"
+        android:src="@drawable/ic_add"
+        app:layout_anchor="@id/place_list"
+        app:layout_anchorGravity="bottom|right|end"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_onoff"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:clickable="true"
+        android:src="@drawable/ic_onoff"
+        app:layout_anchor="@id/place_list"
+        app:layout_anchorGravity="bottom|left|end"/>
+
+</android.support.design.widget.CoordinatorLayout>

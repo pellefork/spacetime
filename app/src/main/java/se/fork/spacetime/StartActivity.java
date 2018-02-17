@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -58,12 +59,14 @@ public class StartActivity extends FragmentActivity
     private static final int PLACE_PICKER_REQUEST = 1;
     private static final int EDIT_PLACE_REQUEST = 2;
     private Spinner listSpinner;
+    private FloatingActionButton onOffButton;
     private String currentListKey;
     private LoggablePlaceList currentList;
     private List<String> currentListKeys;
     private Presence presence;
     private ListView listView;
     private PlaceListAdapter listAdapter;
+    private boolean requestingLocation;
     private boolean isListDirty;
     // A reference to the service used to get location updates.
     private LogPlacesByLocationService mService = null;
@@ -92,6 +95,7 @@ public class StartActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
         checkPermission();
+        requestingLocation = false;
         BottomNavigationView bottomNavigationView = (BottomNavigationView)
                 findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.action_list);
@@ -113,6 +117,31 @@ public class StartActivity extends FragmentActivity
                         return false;
                     }
                 });
+        FloatingActionButton addPlaceButton = findViewById(R.id.fab_add);
+        addPlaceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                invokePlacepicker(v);
+            }
+        });
+
+        onOffButton = findViewById(R.id.fab_onoff);
+        onOffButton.setBackgroundTintList(ColorStateList.valueOf( getResources().getColor(R.color.powerFabOff, null)));
+        onOffButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (requestingLocation) {
+                    stopRequestingLocations(v);
+                    onOffButton.setBackgroundTintList(ColorStateList.valueOf( getResources().getColor(R.color.powerFabOff, null)));
+                    requestingLocation = false;
+                } else {
+                    startRequestingLocations(v);
+                    onOffButton.setBackgroundTintList(ColorStateList.valueOf( getResources().getColor(R.color.powerFabOn, null)));
+                    requestingLocation = true;
+                }
+            }
+        });
+
         myReceiver = new MyReceiver();
         listSpinner = findViewById(R.id.placelist_spinner);
         listSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -180,8 +209,12 @@ public class StartActivity extends FragmentActivity
         }
     }
 
-    public void runJobImmediately(View view) {
+    public void startRequestingLocations(View view) {
         mService.requestLocationUpdates();
+    }
+
+    public void stopRequestingLocations(View view) {
+        mService.removeLocationUpdates();
     }
 
     private void setupPlaceList() {
@@ -239,8 +272,8 @@ public class StartActivity extends FragmentActivity
     }
 
     public void invokePlacepicker(View view) {
-        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
 
+        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
         try {
             startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST);
         } catch (GooglePlayServicesRepairableException e) {
