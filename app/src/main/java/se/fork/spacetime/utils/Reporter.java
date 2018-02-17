@@ -43,11 +43,11 @@ public class Reporter {
         long seconds = remainder / MS_PER_SECOND;
 
         StringBuilder sb = new StringBuilder();
-        sb.append(new DecimalFormat("###").format(hours));
+        sb.append(new DecimalFormat("#00").format(hours));
         sb.append(":");
-        sb.append(new DecimalFormat("##").format(minutes));
+        sb.append(new DecimalFormat("00").format(minutes));
         sb.append(":");
-        sb.append(new DecimalFormat("##").format(seconds));
+        sb.append(new DecimalFormat("00").format(seconds));
         return  sb.toString();
     }
 
@@ -55,14 +55,22 @@ public class Reporter {
         List<PlaceLogEntry> filteredData = getFilteredLogentryList(rawData);
         List<TimeSpan> timeSpans = new LinkedList<>();
         long totalDuration = 0;
-        // Find out if we start in or out pf place
-        if (filteredData.get(0).isInside()) {
 
-        } else {
+        // Find out if we start in or out pf place
+        // If we start inside (first record is Out), add a record at the head with In state at time of report start
+        if (!filteredData.get(0).isInside()) {
             PlaceLogEntry firstRealEntry = filteredData.get(0);
             PlaceLogEntry dummyEntry = new PlaceLogEntry(firstRealEntry.getPlaceId(), firstRealEntry.getPlaceName(), firstRealEntry.getListName(), true, reportStartTime);
             filteredData.add(0, dummyEntry);
         }
+
+        // If we end inside (last record is In), add a record at the tail with Out state at time of report end
+        if (filteredData.get(filteredData.size()-1).isInside() ) {
+            PlaceLogEntry firstRealEntry = filteredData.get(0);
+            PlaceLogEntry dummyEntry = new PlaceLogEntry(firstRealEntry.getPlaceId(), firstRealEntry.getPlaceName(), firstRealEntry.getListName(), false, reportStopTime);
+            filteredData.add(dummyEntry);
+        }
+
         for (int i = 0; i < filteredData.size(); i += 2) {
             PlaceLogEntry entry = filteredData.get(i);
             PlaceLogEntry exit = filteredData.get(i+1);

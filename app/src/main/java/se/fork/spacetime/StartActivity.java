@@ -9,6 +9,8 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,6 +38,10 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.baoyz.swipemenulistview.SwipeMenu;
+import com.baoyz.swipemenulistview.SwipeMenuCreator;
+import com.baoyz.swipemenulistview.SwipeMenuItem;
+import com.baoyz.swipemenulistview.SwipeMenuListView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -65,7 +71,7 @@ public class StartActivity extends FragmentActivity
     private LoggablePlaceList currentList;
     private List<String> currentListKeys;
     private Presence presence;
-    private ListView listView;
+    private SwipeMenuListView listView;
     private PlaceListAdapter listAdapter;
     private boolean requestingLocation;
     private boolean isListDirty;
@@ -143,6 +149,7 @@ public class StartActivity extends FragmentActivity
             }
         });
 
+
         myReceiver = new MyReceiver();
         listSpinner = findViewById(R.id.placelist_spinner);
         listSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -166,6 +173,64 @@ public class StartActivity extends FragmentActivity
             currentList = LocalStorage.getInstance().getLoggablePlaceList(this, currentListKey);
         }
         // LogPlacePresenceJob.schedulePeriodic();
+    }
+
+    private void setupSwipeList() {
+        SwipeMenuCreator swipeCreator = new SwipeMenuCreator() {
+
+            @Override
+            public void create(SwipeMenu menu) {
+                // create "open" item
+                SwipeMenuItem opItem = new SwipeMenuItem(
+                        getApplicationContext());
+                // set item background
+                opItem.setBackground(new ColorDrawable(Color.rgb(0xC9, 0xC9,
+                        0xCE)));
+                opItem.setWidth((250));
+                opItem.setTitle("Edit");
+                opItem.setTitleSize(20);
+                opItem.setTitleColor(Color.WHITE);
+                menu.addMenuItem(opItem);
+                SwipeMenuItem delItem = new SwipeMenuItem(
+                        getApplicationContext());
+                delItem.setBackground(new ColorDrawable(Color.rgb(0xC9, 0xC9,
+                        0xCE)));
+                delItem.setTitleSize(20);
+                delItem.setBackground(R.color.colorAccent);
+                delItem.setWidth((250));
+                delItem.setTitleColor(Color.WHITE);
+                delItem.setTitle("Delete");
+                menu.addMenuItem(delItem);
+            }
+        };
+// set creator
+        listView.setMenuCreator(swipeCreator);
+        listView.setSwipeDirection(SwipeMenuListView.DIRECTION_LEFT);
+        listView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
+                switch (index) {
+                    case 0:
+                        // open
+                        Toast.makeText(getApplicationContext(), "Index: " + index + " " + "Position: " + position, Toast.LENGTH_LONG).show();
+                        //Toast.makeText(CustomerListActivity.this,"Position: "+index,Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(StartActivity.this, EditPlaceActivity.class);
+                        intent.putExtra("current_list", currentListKey);
+                        intent.putExtra("place",  currentList.getLoggablePlaces().get(currentListKeys.get(position)).getId());
+                        startActivityForResult(intent, EDIT_PLACE_REQUEST);
+                        break;
+                    case 1:
+                        // delete
+                        String id = currentList.getLoggablePlaces().get(currentListKeys.get(position)).getId();
+                        currentList.getLoggablePlaces().remove(id);
+                        LocalStorage.getInstance().saveLoggablePlaceList(currentList, getApplicationContext());
+                        listAdapter.notifyDataSetInvalidated();
+                        Toast.makeText(getApplicationContext(), "Index: " + index + " " + "Position: " + position, Toast.LENGTH_LONG).show();
+                        break;
+                }
+                return false;
+            }
+        });
     }
 
     private void setOnOffButtonColor() {
@@ -244,6 +309,7 @@ public class StartActivity extends FragmentActivity
             currentListKeys.add(key);
         }
         listView = findViewById(R.id.place_list);
+        setupSwipeList();
         listAdapter = new PlaceListAdapter();
         listView.setAdapter(listAdapter);
     }
@@ -406,6 +472,7 @@ public class StartActivity extends FragmentActivity
                     }
                 });
 
+/*
                 row.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -415,6 +482,7 @@ public class StartActivity extends FragmentActivity
                         startActivityForResult(intent, EDIT_PLACE_REQUEST);
                     }
                 });
+*/
             }
 
 

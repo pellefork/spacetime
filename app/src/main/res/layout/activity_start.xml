@@ -19,6 +19,15 @@
         android:layout_margin="@dimen/fab_margin"
         />
 
+    <com.baoyz.swipemenulistview.SwipeMenuListView
+        android:id="@+id/place_list"
+        android:layout_below="@+id/placelist_spinner"
+        android:layout_above="@id/bottom"
+        android:padding="@dimen/fab_margin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+<!--
     <ListView
         android:id="@+id/place_list"
         android:layout_below="@+id/placelist_spinner"
@@ -28,6 +37,7 @@
         android:layout_height="wrap_content">
 
     </ListView>
+-->
 
     <LinearLayout
         android:id="@+id/bottom"
