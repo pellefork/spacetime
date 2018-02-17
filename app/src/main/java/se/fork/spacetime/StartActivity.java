@@ -168,6 +168,17 @@ public class StartActivity extends FragmentActivity
         // LogPlacePresenceJob.schedulePeriodic();
     }
 
+    private void setOnOffButtonColor() {
+        if (mService != null) {
+            requestingLocation = mService.isRequestingLocationUpdates();
+        }
+        if (requestingLocation) {
+            setOnOffButtonColor(R.color.powerFabOn);
+        } else {
+            setOnOffButtonColor(R.color.powerFabOff);
+        }
+    }
+
     private void setOnOffButtonColor(int colorId) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             onOffButton.setBackgroundTintList(ColorStateList.valueOf( getResources().getColor(colorId, null)));
@@ -246,6 +257,7 @@ public class StartActivity extends FragmentActivity
         populatePlaceListSpinner();
         setupPlaceList();
         isListDirty = false;
+        setOnOffButtonColor();
     }
 
     @Override

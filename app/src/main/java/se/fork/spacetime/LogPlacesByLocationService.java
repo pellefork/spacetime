@@ -117,6 +117,8 @@ public class LogPlacesByLocationService extends Service {
      */
     private Location mLocation;
 
+    private boolean requestingLocationUpdates;
+
     @Override
     public void onCreate() {
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -229,6 +231,10 @@ public class LogPlacesByLocationService extends Service {
         mServiceHandler.removeCallbacksAndMessages(null);
     }
 
+    public boolean isRequestingLocationUpdates() {
+        return requestingLocationUpdates;
+    }
+
     /**
      * Makes a request for location updates. Note that in this sample we merely log the
      * {@link SecurityException}.
@@ -240,6 +246,7 @@ public class LogPlacesByLocationService extends Service {
         try {
             mFusedLocationClient.requestLocationUpdates(mLocationRequest,
                     mLocationCallback, Looper.myLooper());
+            requestingLocationUpdates = true;
         } catch (SecurityException unlikely) {
             // Utils.setRequestingLocationUpdates(this, false);
             Log.e(TAG, "Lost location permission. Could not request updates. " + unlikely);
@@ -256,6 +263,7 @@ public class LogPlacesByLocationService extends Service {
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
             // Utils.setRequestingLocationUpdates(this, false);
             stopSelf();
+            requestingLocationUpdates = false;
         } catch (SecurityException unlikely) {
             // Utils.setRequestingLocationUpdates(this, true);
             Log.e(TAG, "Lost location permission. Could not remove updates. " + unlikely);
