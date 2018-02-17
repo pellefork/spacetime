@@ -21,4 +21,8 @@
     <string name="report_total_duration">Total Duration in Period:</string>
     <string name="report_duration">Duration:</string>
 
+    <string name="bottom_nav_list">Place list</string>
+    <string name="bottom_nav_map">Place map</string>
+    <string name="bottom_nav_report">Reports</string>
+
 </resources>

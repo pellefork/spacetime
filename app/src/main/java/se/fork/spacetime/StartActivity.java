@@ -12,6 +12,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -21,6 +22,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -90,6 +92,27 @@ public class StartActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
         checkPermission();
+        BottomNavigationView bottomNavigationView = (BottomNavigationView)
+                findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.action_list);
+        bottomNavigationView.setOnNavigationItemSelectedListener(
+                new BottomNavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.action_list:
+
+                                break;
+                            case R.id.action_map:
+                                startActivity(new Intent(getApplicationContext(), MapsActivity.class));
+                                break;
+                            case R.id.action_report:
+                                startActivity(new Intent(getApplicationContext(), ReportActivity.class));
+                                break;
+                        }
+                        return false;
+                    }
+                });
         myReceiver = new MyReceiver();
         listSpinner = findViewById(R.id.placelist_spinner);
         listSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
