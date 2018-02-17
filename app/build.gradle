@@ -4,7 +4,7 @@ android {
     compileSdkVersion 26
     defaultConfig {
         applicationId "se.fork.spacetime"
-        minSdkVersion 24
+        minSdkVersion 21
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -53,4 +53,13 @@ dependencies {
 
     // Test helpers for Room
     testImplementation "android.arch.persistence.room:testing:1.0.0"
+}
+
+repositories {
+    google()
+
+    // If you're using a version of Gradle lower than 4.1, you must instead use:
+    // maven {
+    //     url 'https://maven.google.com'
+    // }
 }

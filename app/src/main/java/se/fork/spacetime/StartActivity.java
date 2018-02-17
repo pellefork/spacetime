@@ -10,6 +10,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -126,17 +127,17 @@ public class StartActivity extends FragmentActivity
         });
 
         onOffButton = findViewById(R.id.fab_onoff);
-        onOffButton.setBackgroundTintList(ColorStateList.valueOf( getResources().getColor(R.color.powerFabOff, null)));
+        setOnOffButtonColor(R.color.powerFabOff);
         onOffButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (requestingLocation) {
                     stopRequestingLocations(v);
-                    onOffButton.setBackgroundTintList(ColorStateList.valueOf( getResources().getColor(R.color.powerFabOff, null)));
+                    setOnOffButtonColor(R.color.powerFabOff);
                     requestingLocation = false;
                 } else {
                     startRequestingLocations(v);
-                    onOffButton.setBackgroundTintList(ColorStateList.valueOf( getResources().getColor(R.color.powerFabOn, null)));
+                    setOnOffButtonColor(R.color.powerFabOn);
                     requestingLocation = true;
                 }
             }
@@ -165,6 +166,14 @@ public class StartActivity extends FragmentActivity
             currentList = LocalStorage.getInstance().getLoggablePlaceList(this, currentListKey);
         }
         // LogPlacePresenceJob.schedulePeriodic();
+    }
+
+    private void setOnOffButtonColor(int colorId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            onOffButton.setBackgroundTintList(ColorStateList.valueOf( getResources().getColor(colorId, null)));
+        } else {
+            onOffButton.setBackgroundTintList(ColorStateList.valueOf( getResources().getColor(colorId)));
+        }
     }
 
     @Override
@@ -196,6 +205,7 @@ public class StartActivity extends FragmentActivity
         @Override
         public void onReceive(Context context, Intent intent) {
             Location location = intent.getParcelableExtra(LogPlacesByLocationService.EXTRA_LOCATION);
+            Log.d(this.getClass().getSimpleName(), "onReceive: Activity receiving location " + location);
             if (location != null) {
                 Toast.makeText(StartActivity.this, location.toString(),
                         Toast.LENGTH_SHORT).show();

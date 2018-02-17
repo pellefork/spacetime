@@ -146,21 +146,16 @@ public class LogPlacesByLocationService extends Service {
 
             // Set the Notification Channel for the Notification Manager.
             mNotificationManager.createNotificationChannel(mChannel);
-/*
-            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setContentTitle("")
-                    .setContentText("").build();
-*/
-
-            startForeground(1, new Notification());
         }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG, "Service started");
+        Log.i(TAG, "onStartCommand: Service started");
         boolean startedFromNotification = intent.getBooleanExtra(EXTRA_STARTED_FROM_NOTIFICATION,
                 false);
+
+        Log.i(TAG, "onStartCommand: startedFromNotification = " + startedFromNotification);
 
         // We got here because the user decided to remove location updates from the notification.
         if (startedFromNotification) {
@@ -201,23 +196,28 @@ public class LogPlacesByLocationService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.i(TAG, "Last client unbound from service");
+        Log.i(TAG, "onUnbind: Last client unbound from service");
 
         // Called when the last client (MainActivity in case of this sample) unbinds from this
         // service. If this method is called due to a configuration change in MainActivity, we
         // do nothing. Otherwise, we make this service a foreground service.
         if (!mChangingConfiguration) {
-            Log.i(TAG, "Starting foreground service");
+            Log.i(TAG, "onUnbind: Starting foreground service");
 
             // TODO(developer). If targeting O, use the following code.
+/*
             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
+                Log.i(TAG, "onUnbind: Version is Oreo");
                 ContextCompat.startForegroundService(this, new Intent(this,
                         LogPlacesByLocationService.class));
-                //mNotificationManager.startServiceInForeground(new Intent(this,            // TODO: Pelle: Weird, see https://stackoverflow.com/questions/45501697/android-o-background-service-limitations
-                //        LogPlacesByLocationService.class), NOTIFICATION_ID, getNotification());
+                Log.i(TAG, "onUnbind: ContextCompat.startForegroundService has executed");
+
+//                mNotificationManager.startServiceInForeground(new Intent(this,            // TODO: Pelle: Weird, see https://stackoverflow.com/questions/45501697/android-o-background-service-limitations
+//                        LogPlacesByLocationService.class), NOTIFICATION_ID, getNotification());
             } else {
                 startForeground(NOTIFICATION_ID, getNotification());
             }
+*/
 
             startForeground(NOTIFICATION_ID, getNotification());
         }
@@ -266,6 +266,7 @@ public class LogPlacesByLocationService extends Service {
      * Returns the {@link NotificationCompat} used as part of the foreground service.
      */
     private Notification getNotification() {
+        Log.i(TAG, "getNotification: executing");
         Intent intent = new Intent(this, LogPlacesByLocationService.class);
 
         CharSequence text = mLocation.toString();
@@ -281,8 +282,8 @@ public class LogPlacesByLocationService extends Service {
         PendingIntent activityPendingIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, StartActivity.class), 0);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .addAction(R.drawable.ic_launcher_foreground, "Start Spacetime",
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                .addAction(R.mipmap.ic_launcher, "Start Spacetime",
                         activityPendingIntent)
                 .setContentText(text)
                 .setContentTitle("Location updated")
@@ -297,6 +298,7 @@ public class LogPlacesByLocationService extends Service {
             builder.setChannelId(CHANNEL_ID); // Channel ID
         }
 
+        Log.i(TAG, "getNotification: executed, about to return notification");
         return builder.build();
     }
 
@@ -319,7 +321,7 @@ public class LogPlacesByLocationService extends Service {
     }
 
     private void onNewLocation(Location location) {
-        Log.i(TAG, "New location: " + location.toString());
+        Log.i(TAG, "onNewLocation: New location: " + location.toString());
 
         mLocation = location;
         Presence presence = handleNewLocation(location);
@@ -333,6 +335,7 @@ public class LogPlacesByLocationService extends Service {
 
         // Update notification content if running as a foreground service.
         if (serviceIsRunningInForeground(this)) {
+            Log.i(TAG, "onNewLocation serviceIsRunningInForeground = true, notifying");
             mNotificationManager.notify(NOTIFICATION_ID, getNotification());
         }
     }
