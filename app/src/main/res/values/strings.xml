@@ -25,4 +25,9 @@
     <string name="bottom_nav_map">Place map</string>
     <string name="bottom_nav_report">Reports</string>
 
+    <string name="settings">Settings</string>
+    <string name="locationQuestion">We need to use your location for this app to work at all</string>
+    <string name="permission_denied_explanation">Unfortunatwly this app will not funtion properly without location permission</string>
+    <string name="map">Map</string>
+
 </resources>
