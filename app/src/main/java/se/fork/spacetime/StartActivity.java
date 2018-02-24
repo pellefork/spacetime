@@ -58,13 +58,12 @@ import se.fork.spacetime.model.LoggablePlace;
 import se.fork.spacetime.model.LoggablePlaceList;
 import se.fork.spacetime.model.MyPlaceLists;
 import se.fork.spacetime.model.Presence;
+import se.fork.spacetime.utils.Constants;
 import se.fork.spacetime.utils.LocalStorage;
 
 public class StartActivity extends FragmentActivity
         implements GoogleApiClient.OnConnectionFailedListener {
 
-    private static final int PLACE_PICKER_REQUEST = 1;
-    private static final int EDIT_PLACE_REQUEST = 2;
     private Spinner listSpinner;
     private FloatingActionButton onOffButton;
     private String currentListKey;
@@ -217,7 +216,7 @@ public class StartActivity extends FragmentActivity
                         Intent intent = new Intent(StartActivity.this, EditPlaceActivity.class);
                         intent.putExtra("current_list", currentListKey);
                         intent.putExtra("place",  currentList.getLoggablePlaces().get(currentListKeys.get(position)).getId());
-                        startActivityForResult(intent, EDIT_PLACE_REQUEST);
+                        startActivityForResult(intent, Constants.EDIT_PLACE_REQUEST);
                         break;
                     case 1:
                         // delete
@@ -363,7 +362,7 @@ public class StartActivity extends FragmentActivity
 
         PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
         try {
-            startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST);
+            startActivityForResult(builder.build(this), Constants.PLACE_PICKER_REQUEST);
         } catch (GooglePlayServicesRepairableException e) {
             e.printStackTrace();
         } catch (GooglePlayServicesNotAvailableException e) {
@@ -376,7 +375,7 @@ public class StartActivity extends FragmentActivity
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == PLACE_PICKER_REQUEST) {
+        if (requestCode == Constants.PLACE_PICKER_REQUEST) {
             if (resultCode == RESULT_OK) {
                 Place place = PlacePicker.getPlace(this, data);
                 Log.d(this.getClass().getSimpleName(), "onActivityResult Place: " + place.getName() + ", latlong: " + place.getLatLng() + ", types: " + place.getPlaceTypes());
@@ -384,7 +383,7 @@ public class StartActivity extends FragmentActivity
                 Toast.makeText(this, toastMsg, Toast.LENGTH_LONG).show();
                 saveNewLoggablePlace(place);
             }
-        } else if (requestCode == EDIT_PLACE_REQUEST) {
+        } else if (requestCode == Constants.EDIT_PLACE_REQUEST) {
             if (resultCode == RESULT_OK) {
                 currentList = LocalStorage.getInstance().getLoggablePlaceList(this, currentListKey);
                 listAdapter.notifyDataSetChanged();

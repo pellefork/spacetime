@@ -43,10 +43,11 @@ import java.util.List;
 import se.fork.spacetime.model.LoggablePlace;
 import se.fork.spacetime.model.LoggablePlaceList;
 import se.fork.spacetime.model.MyPlaceLists;
+import se.fork.spacetime.utils.Constants;
 import se.fork.spacetime.utils.LocalStorage;
 
 public class MapsActivity extends FragmentActivity implements  OnMapReadyCallback, LocationListener,  GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,GoogleMap.OnMarkerClickListener {
+        GoogleApiClient.OnConnectionFailedListener,GoogleMap.OnMarkerClickListener,GoogleMap.OnInfoWindowClickListener {
 
     private GoogleMap mMap;
     private List<Marker> markers;
@@ -116,7 +117,8 @@ public class MapsActivity extends FragmentActivity implements  OnMapReadyCallbac
         for (LoggablePlace place: currentList.getLoggablePlaces().values()) {
             setMarker(place);
         }
-
+        mMap.setOnMarkerClickListener(this);
+        mMap.setOnInfoWindowClickListener(this);
     }
 
     private void setRelevantZoom() {
@@ -138,13 +140,37 @@ public class MapsActivity extends FragmentActivity implements  OnMapReadyCallbac
 
     private void setMarker(LoggablePlace place) {
         LatLng position = new LatLng(place.getLatitude(), place.getLongitude());
-        markers.add(mMap.addMarker(new MarkerOptions().position(position).title(place.getName())));
+        Marker marker = mMap.addMarker(new MarkerOptions().position(position).title(place.getName()));
+        marker.setTag(place);
+        marker.setTitle(place.getName());
+        marker.setSnippet(place.getAddress());
+        markers.add(marker);
     }
+
+
 
     @Override
     public boolean onMarkerClick(Marker marker) {
+        if ( marker.isInfoWindowShown()) {
+            marker.hideInfoWindow();
+        } else {
+            marker.showInfoWindow();
+        }
         return false;
     }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        LoggablePlace place = (LoggablePlace)marker.getTag();
+        if (place != null) {
+            Intent intent = new Intent(MapsActivity.this, EditPlaceActivity.class);
+            intent.putExtra("current_list", currentListKey);
+            intent.putExtra("place",  place.getId());
+            startActivityForResult(intent, Constants.EDIT_PLACE_REQUEST);
+
+        }
+    }
+
 
     // ********************** Boilerplace code only below ************************************************
 
