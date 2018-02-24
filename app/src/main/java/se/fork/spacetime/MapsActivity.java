@@ -74,15 +74,13 @@ public class MapsActivity extends FragmentActivity implements  OnMapReadyCallbac
         MyPlaceLists listLists = LocalStorage.getInstance().getMyPlaceLists(getApplicationContext());
         currentListKey = listLists.getKeys().get(0);    // TODO Get value from spinner
         currentList = LocalStorage.getInstance().getLoggablePlaceList(getApplicationContext(), currentListKey);
-
     }
 
 
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
+     * This is where we can add markers or lines, add listeners or move the camera.
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
@@ -96,13 +94,11 @@ public class MapsActivity extends FragmentActivity implements  OnMapReadyCallbac
             if (!checkPermissions()) {
                 requestPermissions();
             } else {
-                //getLastLocation();
                 buildGoogleApiClient();
                 mMap.setMyLocationEnabled(true);
             }
         }
         else{
-            //getLastLocation();
             buildGoogleApiClient();
             mMap.setMyLocationEnabled(true);
         }
@@ -131,7 +127,7 @@ public class MapsActivity extends FragmentActivity implements  OnMapReadyCallbac
         defaultZoom = bounds;
         int width = getResources().getDisplayMetrics().widthPixels;
         int height = getResources().getDisplayMetrics().heightPixels;
-        int padding = (int) (width * 0.12); // offset from edges of the map 12% of screen
+        int padding = (int) (height * 0.2); // offset from edges of the map 12% of screen
 
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
 
@@ -315,7 +311,6 @@ public class MapsActivity extends FragmentActivity implements  OnMapReadyCallbac
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {}
 
-    boolean moved =false;
     @Override
     public void onLocationChanged(Location location)
     {
@@ -323,19 +318,6 @@ public class MapsActivity extends FragmentActivity implements  OnMapReadyCallbac
         if (mCurrLocationMarker != null) {
             mCurrLocationMarker.remove();
         }
-
-/*
-        LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-        // Log.d(TAG + ":onLocationChanged", "New location: " + mLastLocation.getLatitude() + "," + mLastLocation.getLongitude() );
-
-
-        if(!moved) {        //move map camera
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
-            moved=true;
-        }
-        //If you only need one location, unregister the listener
-        //LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this)
-*/
     }
 
     @TargetApi(23)

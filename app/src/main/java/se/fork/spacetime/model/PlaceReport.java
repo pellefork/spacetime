@@ -14,13 +14,15 @@ public class PlaceReport {
     private long toTimeStamp;
     private long totalDuration;
     private List<TimeSpan> timeSpans;
+    private boolean dataInconsistent;
 
-    public PlaceReport(LoggablePlace place, long fromTimestamp, long toTimeStamp, long totalDuration, List<TimeSpan> timeSpans) {
+    public PlaceReport(LoggablePlace place, long fromTimestamp, long toTimeStamp, long totalDuration, List<TimeSpan> timeSpans, boolean dataInconsistent) {
         this.place = place;
         this.fromTimestamp = fromTimestamp;
         this.toTimeStamp = toTimeStamp;
         this.totalDuration = totalDuration;
         this.timeSpans = timeSpans;
+        this.dataInconsistent = dataInconsistent;
     }
 
     public LoggablePlace getPlace() {
@@ -37,6 +39,10 @@ public class PlaceReport {
 
     public long getTotalDuration() {
         return totalDuration;
+    }
+
+    public boolean isDataInconsistent() {
+        return dataInconsistent;
     }
 
     public List<TimeSpan> getTimeSpans() {

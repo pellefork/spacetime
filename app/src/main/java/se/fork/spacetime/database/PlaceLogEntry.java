@@ -94,7 +94,7 @@ public class PlaceLogEntry {
                 ", placeName='" + placeName + '\'' +
                 ", listName='" + listName + '\'' +
                 ", inside=" + inside +
-                ", timestamp=" + timestamp +
+                ", timestamp=" + new Date(timestamp) +
                 '}';
     }
 }

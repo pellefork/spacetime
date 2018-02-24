@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">spacetime</string>
+    <string name="app_name">Spacetime</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_start">StartActivity</string>
 
@@ -17,6 +17,7 @@
 
     <string name="report_status_in">In</string>
     <string name="report_status_out">Out</string>
+    <string name="report_status_inconsistent">Data for %s appears to be inconsistent</string>
 
     <string name="report_total_duration">Total Duration in Period:</string>
     <string name="report_duration">Duration:</string>
@@ -29,5 +30,13 @@
     <string name="locationQuestion">We need to use your location for this app to work at all</string>
     <string name="permission_denied_explanation">Unfortunatwly this app will not funtion properly without location permission</string>
     <string name="map">Map</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="drawer_item_my_lists">My Lists</string>
+    <string name="drawer_item_settings">Settings</string>
+    <string name="drawer_item_data_cleanup">Data Cleanup</string>
 
 </resources>

@@ -90,10 +90,17 @@ public class PlaceReportExpandableListAdapter extends BaseExpandableListAdapter 
         TextView nameView = convertView.findViewById(R.id.name);
         TextView addressView = convertView.findViewById(R.id.address);
         TextView durationView = convertView.findViewById(R.id.duration);
+        TextView commentView = convertView.findViewById(R.id.comment);
         PlaceReport report = getGroup(groupPosition);
         nameView.setText(report.getPlace().getName());
         addressView.setText(report.getPlace().getAddress());
         durationView.setText(Reporter.getFormattedDuration(report.getTotalDuration()));
+        if (report.isDataInconsistent()) {
+            commentView.setText( String.format(context.getString( R.string.report_status_inconsistent), report.getPlace().getName()));
+            commentView.setVisibility(View.VISIBLE);
+        } else {
+            commentView.setVisibility(View.GONE);
+        }
         return convertView;
     }
 
