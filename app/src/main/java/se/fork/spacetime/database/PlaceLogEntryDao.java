@@ -24,6 +24,14 @@ public interface PlaceLogEntryDao {
     )
     List<PlaceLogEntry> getAllByPlace(String placeId);
 
+    @Query("select * " +
+            "from place_log_entry" +
+            " where place_id = :placeId" +
+            " and time_stamp between :fromTime and :toTime" +
+            " order by time_stamp"
+    )
+    List<PlaceLogEntry> getAllByPlaceAndTime(String placeId, long fromTime, long toTime);
+
     @Query("select count(*) from place_log_entry")
     long countRecords();
 

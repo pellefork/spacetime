@@ -89,6 +89,7 @@ public class ReportActivity extends Activity {
                 } else {
                     currentPeriod = getCurrentPeriod();
                     updatePeriodView();
+                    refreshData();
                 }
             }
 
@@ -153,6 +154,7 @@ public class ReportActivity extends Activity {
                 calendar.add(Calendar.DATE, 1);    // User wants inclusive dates so e.g. a single day report could be Jan 23 -> Jan 23
                 currentPeriod = new TimeSpan(currentPeriod.getFromTimestamp(), calendar.getTimeInMillis());
                 updatePeriodView();
+                refreshData();
             }
         };
         DatePickerDialog toDateDialog = new DatePickerDialog(this, fromDateListener, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
@@ -174,12 +176,15 @@ public class ReportActivity extends Activity {
     protected void onStart() {
         super.onStart();
         populatePlaceListSpinner();
-        SpacetimeDatabase db = SpacetimeDatabase.getSpacetimeDatabase(this);
         MyPlaceLists listLists = LocalStorage.getInstance().getMyPlaceLists(getApplicationContext());
         currentListKey = listLists.getKeys().get(0);    // TODO Get value from spinner
         currentList = LocalStorage.getInstance().getLoggablePlaceList(getApplicationContext(), currentListKey);
+        refreshData();
+    }
 
-        new ReadLogDataTask(this, db, currentList).execute();
+    private void refreshData() {
+        SpacetimeDatabase db = SpacetimeDatabase.getSpacetimeDatabase(this);
+        new ReadLogDataTask(this, db, currentList, currentPeriod.getFromTimestamp(), currentPeriod.getToTimeStamp()).execute();
     }
 
     private void populatePlaceListSpinner() {
@@ -198,11 +203,15 @@ public class ReportActivity extends Activity {
         private final SpacetimeDatabase db;
         private Context context;
         private LoggablePlaceList placeList;
+        private long fromTime;
+        private long toTime;
 
-        private ReadLogDataTask(Context context, SpacetimeDatabase db, LoggablePlaceList placeList) {
+        private ReadLogDataTask(Context context, SpacetimeDatabase db, LoggablePlaceList placeList, long fromTime, long toTime) {
             this.db = db;
             this.context = context;
             this.placeList = placeList;
+            this.fromTime = fromTime;
+            this.toTime = toTime;
         }
 
 
@@ -210,8 +219,8 @@ public class ReportActivity extends Activity {
         protected Void doInBackground(Void... voids) {
             reportList = new LinkedList<>();
             for (LoggablePlace place: currentList.getLoggablePlaces().values()) {
-                List<PlaceLogEntry> logEntryList = db.placeLogEntryDao().getAllByPlace(place.getId());  // TODO Replace with query by timespan
-                PlaceReport report = Reporter.getInstance().getPlaceReport(place, logEntryList, new Date(0).getTime(), new Date().getTime());
+                List<PlaceLogEntry> logEntryList = db.placeLogEntryDao().getAllByPlaceAndTime(place.getId(), fromTime, toTime);
+                PlaceReport report = Reporter.getInstance().getPlaceReport(place, logEntryList, fromTime, toTime);
                 if (report != null) {
                     reportList.add(report);
                 }
