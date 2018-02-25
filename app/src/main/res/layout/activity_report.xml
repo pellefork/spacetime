@@ -39,9 +39,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
+    <TextView
+        android:id="@+id/period_total"
+        android:layout_below="@id/period_start"
+        android:layout_alignParentLeft="true"
+        android:padding="@dimen/fab_margin"
+        android:text="@string/report_list_total"
+        android:textSize="18sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/period_total_duration"
+        android:layout_below="@id/period_end"
+        android:layout_alignParentRight="true"
+        android:padding="@dimen/fab_margin"
+        android:textSize="18sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <ExpandableListView
         android:id="@+id/expandable_list_view"
-        android:layout_below="@+id/period_start"
+        android:layout_below="@+id/period_total"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:padding="@dimen/fab_margin"

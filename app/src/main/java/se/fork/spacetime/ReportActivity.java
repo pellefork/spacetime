@@ -50,6 +50,7 @@ public class ReportActivity extends Activity {
     private ExpandableListAdapter expandableListAdapter;
     private ExpandableListView expandableListView;
     private List<PlaceReport> reportList;
+    private TextView listTotalView;
 
     final String dateFormatString = "yyyy-MM-dd HH:mm:ss";
     SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatString);
@@ -62,6 +63,7 @@ public class ReportActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_report);
+        listTotalView = findViewById(R.id.period_total_duration);
         expandableListView = findViewById(R.id.expandable_list_view);
         listSpinner = findViewById(R.id.placelist_spinner);
         listSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -232,6 +234,11 @@ public class ReportActivity extends Activity {
         protected void onPostExecute(Void aVoid) {
             expandableListAdapter = new PlaceReportExpandableListAdapter(context, new Date(0), new Date(), reportList);
             expandableListView.setAdapter(expandableListAdapter);
+            long listTotal = 0;
+            for (PlaceReport report: reportList) {
+                listTotal += report.getTotalDuration();
+            }
+            listTotalView.setText(Reporter.getFormattedDuration(listTotal));
         }
     }
 }

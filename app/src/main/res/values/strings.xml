@@ -28,6 +28,7 @@
     <string name="report_this_month">This month</string>
     <string name="report_last_month">Last month</string>
     <string name="report_other_period">Other period…</string>
+    <string name="report_list_total">Period list total:</string>
 
     <string name="report_select_start_date">Select report start date:</string>
     <string name="report_select_end_date">Select report end date:</string>
