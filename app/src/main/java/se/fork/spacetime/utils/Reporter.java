@@ -1,8 +1,10 @@
 package se.fork.spacetime.utils;
 
+import android.provider.Settings;
 import android.util.Log;
 
 import java.text.DecimalFormat;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -103,4 +105,88 @@ public class Reporter {
 
         return report;
     }
+
+    public static TimeSpan getPeriod(int selection) {
+        TimeSpan timeSpan = null;
+        switch (selection) {
+            case Constants.THIS_WEEK:
+                timeSpan = getWeek(0,true);
+                break;
+            case Constants.LAST_WEEK:
+                timeSpan = getWeek(-1, false);
+                break;
+            case Constants.THIS_MONTH:
+                timeSpan = getMonth(0, true);
+                break;
+            case Constants.LAST_MONTH:
+                timeSpan = getMonth(-1, false);
+                break;
+            default:
+                throw new IllegalArgumentException("Method accepts only fixed period arguments 0 -3");
+        }
+        return timeSpan;
+    }
+
+    public static TimeSpan getWeek(int offset, boolean truncateAtNow) {
+        long periodStart;
+        long periodStop;
+        // get today and clear time of day
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 0); // ! clear would not reset the hour of day !
+        cal.clear(Calendar.MINUTE);
+        cal.clear(Calendar.SECOND);
+        cal.clear(Calendar.MILLISECOND);
+
+        // get start of this week in milliseconds
+
+        cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
+        cal.add(Calendar.WEEK_OF_YEAR, offset);
+        Log.d("Reporter", "Start of this week:       " + cal.getTime());
+        Log.d("Reporter", "... in milliseconds:      " + cal.getTimeInMillis());
+        periodStart = cal.getTimeInMillis();
+
+        // start of the next week
+
+        cal.add(Calendar.WEEK_OF_YEAR, 1);
+        Log.d("Reporter", "Start of the next week:   " + cal.getTime());
+        Log.d("Reporter", "... in milliseconds:      " + cal.getTimeInMillis());
+        periodStop = cal.getTimeInMillis();
+        long now = System.currentTimeMillis();
+        if (truncateAtNow) {
+            if (periodStop > now) periodStop = now;
+        }
+        return new TimeSpan(periodStart, periodStop);
+    }
+
+    public static TimeSpan getMonth(int offset, boolean truncateAtNow) {
+        long periodStart;
+        long periodStop;
+        // get today and clear time of day
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 0); // ! clear would not reset the hour of day !
+        cal.clear(Calendar.MINUTE);
+        cal.clear(Calendar.SECOND);
+        cal.clear(Calendar.MILLISECOND);
+
+        // get start of this week in milliseconds
+
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        cal.add(Calendar.MONTH, offset);
+        Log.d("Reporter", "Start of this month:       " + cal.getTime());
+        Log.d("Reporter", "... in milliseconds:      " + cal.getTimeInMillis());
+        periodStart = cal.getTimeInMillis();
+
+        // start of the next week
+
+        cal.add(Calendar.MONTH, 1);
+        Log.d("Reporter", "Start of the next month:   " + cal.getTime());
+        Log.d("Reporter", "... in milliseconds:      " + cal.getTimeInMillis());
+        periodStop = cal.getTimeInMillis();
+        long now = System.currentTimeMillis();
+        if (truncateAtNow) {
+            if (periodStop > now) periodStop = now;
+        }
+        return new TimeSpan(periodStart, periodStop);
+    }
+
 }

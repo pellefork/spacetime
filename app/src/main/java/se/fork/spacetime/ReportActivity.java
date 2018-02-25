@@ -1,6 +1,7 @@
 package se.fork.spacetime;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.os.AsyncTask;
@@ -11,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.DatePicker;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
@@ -19,6 +21,7 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,12 +33,15 @@ import se.fork.spacetime.model.LoggablePlace;
 import se.fork.spacetime.model.LoggablePlaceList;
 import se.fork.spacetime.model.MyPlaceLists;
 import se.fork.spacetime.model.PlaceReport;
+import se.fork.spacetime.model.TimeSpan;
+import se.fork.spacetime.utils.Constants;
 import se.fork.spacetime.utils.LocalStorage;
 import se.fork.spacetime.utils.Reporter;
 
 public class ReportActivity extends Activity {
 
     private Spinner listSpinner;
+    private Spinner periodSpinner;
     private String currentListKey;
     private LoggablePlaceList currentList;
     private List<String> currentListKeys;
@@ -44,6 +50,12 @@ public class ReportActivity extends Activity {
     private ExpandableListAdapter expandableListAdapter;
     private ExpandableListView expandableListView;
     private List<PlaceReport> reportList;
+
+    final String dateFormatString = "yyyy-MM-dd HH:mm:ss";
+    SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatString);
+
+    private int currentPeriodSelection;
+    private TimeSpan currentPeriod;
 
 
     @Override
@@ -66,6 +78,96 @@ public class ReportActivity extends Activity {
 
             }
         });
+        currentPeriodSelection = 0;
+        periodSpinner = findViewById(R.id.report_period_spinner);
+        periodSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                currentPeriodSelection = position;
+                if (currentPeriodSelection == Constants.OTHER_PERIOD) {
+                    letUserSelectPeriod();
+                } else {
+                    currentPeriod = getCurrentPeriod();
+                    updatePeriodView();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                resetPeriod();
+            }
+        });
+        resetPeriod();
+    }
+
+    private void resetPeriod() {
+        currentPeriodSelection = 0;
+        periodSpinner.setSelection(currentPeriodSelection);
+        currentPeriod = getCurrentPeriod();
+        updatePeriodView();
+    }
+
+    private TimeSpan getCurrentPeriod() {
+        TimeSpan period = Reporter.getPeriod(currentPeriodSelection);
+        return period;
+    }
+
+    private void letUserSelectPeriod() {
+        letUserSelectStartDate();
+    }
+
+    private void letUserSelectStartDate() {
+        final Calendar calendar = Calendar.getInstance();
+        DatePickerDialog.OnDateSetListener fromDateListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                calendar.set(Calendar.YEAR, year);
+                calendar.set(Calendar.MONTH, month);
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                calendar.set(Calendar.HOUR_OF_DAY, 0);
+                calendar.clear(Calendar.MINUTE);
+                calendar.clear(Calendar.SECOND);
+                calendar.clear(Calendar.MILLISECOND);
+                currentPeriod = new TimeSpan(calendar.getTimeInMillis(), System.currentTimeMillis());
+                letUserSelectStopDate();
+            }
+        };
+        DatePickerDialog fromDateDialog = new DatePickerDialog(this, fromDateListener, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+        fromDateDialog.setMessage(getString(R.string.report_select_start_date));
+        fromDateDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+        fromDateDialog.show();
+    }
+
+    private void letUserSelectStopDate () {
+        final Calendar calendar = Calendar.getInstance();
+        DatePickerDialog.OnDateSetListener fromDateListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                calendar.set(Calendar.YEAR, year);
+                calendar.set(Calendar.MONTH, month);
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                calendar.set(Calendar.HOUR_OF_DAY, 0);
+                calendar.clear(Calendar.MINUTE);
+                calendar.clear(Calendar.SECOND);
+                calendar.clear(Calendar.MILLISECOND);
+                calendar.add(Calendar.DATE, 1);    // User wants inclusive dates so e.g. a single day report could be Jan 23 -> Jan 23
+                currentPeriod = new TimeSpan(currentPeriod.getFromTimestamp(), calendar.getTimeInMillis());
+                updatePeriodView();
+            }
+        };
+        DatePickerDialog toDateDialog = new DatePickerDialog(this, fromDateListener, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+        toDateDialog.setMessage(getString(R.string.report_select_end_date));
+        toDateDialog.getDatePicker().setMinDate(currentPeriod.getFromTimestamp());
+        toDateDialog.show();
+    }
+
+    private void updatePeriodView() {
+        TextView periodStartView = findViewById(R.id.period_start);
+        TextView periodEndView = findViewById(R.id.period_end);
+        String periodStartString = dateFormat.format(new Date(currentPeriod.getFromTimestamp()));
+        String periodEndString = dateFormat.format(new Date(currentPeriod.getToTimeStamp()));
+        periodStartView.setText(periodStartString);
+        periodEndView.setText(periodEndString);
     }
 
     @Override
@@ -123,47 +225,4 @@ public class ReportActivity extends Activity {
             expandableListView.setAdapter(expandableListAdapter);
         }
     }
-
-/*
-    private class LogListAdapter extends BaseAdapter {
-        final String dateFormatString = "yyyy-MM-dd HH:mm:ss";
-        SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatString);
-        @Override
-        public int getCount() {
-            return logEntryList.size();
-        }
-
-        @Override
-        public PlaceLogEntry getItem(int position) {
-            return logEntryList.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return logEntryList.get(position).getId();
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            if (convertView == null)
-                convertView = getLayoutInflater().inflate(R.layout.listitem_report, parent, false);
-
-            TextView placeNameView = convertView.findViewById(R.id.name);
-            TextView statusView = convertView.findViewById(R.id.status);
-            TextView timestampView = convertView.findViewById(R.id.timestamp);
-            PlaceLogEntry entry = getItem(position);
-            placeNameView.setText(entry.getPlaceName());
-            if (entry.isInside()) {
-                statusView.setText("In");
-            } else {
-                statusView.setText("Out");
-            }
-            Date timestamp = new Date(entry.getTimestamp());
-            String timeStampStr = dateFormat.format(timestamp);
-            timestampView.setText(timeStampStr);
-
-            return convertView;
-        }
-    }
-*/
 }

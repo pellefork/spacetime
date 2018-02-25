@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="report_periods">
+        <item>@string/report_this_week</item>
+        <item>@string/report_last_week</item>
+        <item>@string/report_this_month</item>
+        <item>@string/report_last_month</item>
+        <item>@string/report_other_period</item>
+    </string-array>
+</resources>
