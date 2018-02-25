@@ -108,10 +108,12 @@ public class ReportActivity extends Activity {
         protected Void doInBackground(Void... voids) {
             reportList = new LinkedList<>();
             for (LoggablePlace place: currentList.getLoggablePlaces().values()) {
-                List<PlaceLogEntry> logEntryList = db.placeLogEntryDao().getAllByPlace(place.getId());
-                reportList.add(Reporter.getInstance().getPlaceReport(place, logEntryList, new Date(0).getTime(), new Date().getTime()));
+                List<PlaceLogEntry> logEntryList = db.placeLogEntryDao().getAllByPlace(place.getId());  // TODO Replace with query by timespan
+                PlaceReport report = Reporter.getInstance().getPlaceReport(place, logEntryList, new Date(0).getTime(), new Date().getTime());
+                if (report != null) {
+                    reportList.add(report);
+                }
             }
-
             return null;
         }
 

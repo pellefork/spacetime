@@ -54,49 +54,52 @@ public class Reporter {
     }
 
     public PlaceReport getPlaceReport(LoggablePlace place, List<PlaceLogEntry> rawData, long reportStartTime, long reportStopTime) {
-        List<PlaceLogEntry> filteredData = getFilteredLogentryList(rawData);
-        List<TimeSpan> timeSpans = new LinkedList<>();
-        long totalDuration = 0;
-        boolean dataInconsistent = false;
+        PlaceReport report = null;
+        if (rawData != null && rawData.size() > 0) {
+            List<PlaceLogEntry> filteredData = getFilteredLogentryList(rawData);
+            List<TimeSpan> timeSpans = new LinkedList<>();
+            long totalDuration = 0;
+            boolean dataInconsistent = false;
 
-        // Find out if we start in or out pf place
-        // If we start inside (first record is Out), add a record at the head with In state at time of report start
-        if (!filteredData.get(0).isInside()) {
-            PlaceLogEntry firstRealEntry = filteredData.get(0);
-            PlaceLogEntry dummyEntry = new PlaceLogEntry(firstRealEntry.getPlaceId(), firstRealEntry.getPlaceName(), firstRealEntry.getListName(), true, reportStartTime);
-            filteredData.add(0, dummyEntry);
-            Log.d(this.getClass().getSimpleName(), "getPlaceReport, adding first record = " + dummyEntry);
-        }
+            // Find out if we start in or out pf place
+            // If we start inside (first record is Out), add a record at the head with In state at time of report start
+            if (!filteredData.get(0).isInside()) {
+                PlaceLogEntry firstRealEntry = filteredData.get(0);
+                PlaceLogEntry dummyEntry = new PlaceLogEntry(firstRealEntry.getPlaceId(), firstRealEntry.getPlaceName(), firstRealEntry.getListName(), true, reportStartTime);
+                filteredData.add(0, dummyEntry);
+                Log.d(this.getClass().getSimpleName(), "getPlaceReport, adding first record = " + dummyEntry);
+            }
 
-        // If we end inside (last record is In), add a record at the tail with Out state at time of report end
-        if (filteredData.get(filteredData.size()-1).isInside() ) {
-            PlaceLogEntry lastRealEntry = filteredData.get(filteredData.size()-1);
-            PlaceLogEntry dummyEntry = new PlaceLogEntry(lastRealEntry.getPlaceId(), lastRealEntry.getPlaceName(), lastRealEntry.getListName(), false, reportStopTime);
-            filteredData.add(dummyEntry);
-            Log.d(this.getClass().getSimpleName(), "getPlaceReport, adding last record = " + dummyEntry);
-        }
+            // If we end inside (last record is In), add a record at the tail with Out state at time of report end
+            if (filteredData.get(filteredData.size()-1).isInside() ) {
+                PlaceLogEntry lastRealEntry = filteredData.get(filteredData.size()-1);
+                PlaceLogEntry dummyEntry = new PlaceLogEntry(lastRealEntry.getPlaceId(), lastRealEntry.getPlaceName(), lastRealEntry.getListName(), false, reportStopTime);
+                filteredData.add(dummyEntry);
+                Log.d(this.getClass().getSimpleName(), "getPlaceReport, adding last record = " + dummyEntry);
+            }
 
-        Log.d(this.getClass().getSimpleName(), "getPlaceReport, filteredData.size() = " + filteredData.size());
-        for (PlaceLogEntry entry: filteredData) {
-            Log.d(this.getClass().getSimpleName(), "entry = " + entry);
-        }
+            Log.d(this.getClass().getSimpleName(), "getPlaceReport, filteredData.size() = " + filteredData.size());
+            for (PlaceLogEntry entry: filteredData) {
+                Log.d(this.getClass().getSimpleName(), "entry = " + entry);
+            }
 
-        if (filteredData.size() % 2 != 0 ) {
-            dataInconsistent = true;
-        }
-
-        for (int i = 0; i < filteredData.size()-1; i += 2) {
-            PlaceLogEntry entry = filteredData.get(i);
-            PlaceLogEntry exit = filteredData.get(i+1);
-            if (entry.isInside() && !exit.isInside()) {
-                TimeSpan timeSpan = new TimeSpan(entry.getTimestamp(), exit.getTimestamp());
-                timeSpans.add(timeSpan);
-                totalDuration += timeSpan.getDuration();
-            } else {
+            if (filteredData.size() % 2 != 0 ) {
                 dataInconsistent = true;
             }
+
+            for (int i = 0; i < filteredData.size()-1; i += 2) {
+                PlaceLogEntry entry = filteredData.get(i);
+                PlaceLogEntry exit = filteredData.get(i+1);
+                if (entry.isInside() && !exit.isInside()) {
+                    TimeSpan timeSpan = new TimeSpan(entry.getTimestamp(), exit.getTimestamp());
+                    timeSpans.add(timeSpan);
+                    totalDuration += timeSpan.getDuration();
+                } else {
+                    dataInconsistent = true;
+                }
+            }
+            report = new PlaceReport(place, reportStartTime, reportStopTime, totalDuration, timeSpans, dataInconsistent);
         }
-        PlaceReport report = new PlaceReport(place, reportStartTime, reportStopTime, totalDuration, timeSpans, dataInconsistent);
 
         return report;
     }
