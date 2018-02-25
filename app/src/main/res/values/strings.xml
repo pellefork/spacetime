@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">Spacetime</string>
-    <string name="title_activity_maps">Map</string>
-    <string name="title_activity_start">StartActivity</string>
+    <string name="title_activity_maps">Place Map</string>
+    <string name="title_activity_start">Place List</string>
+    <string name="title_activity_reports">Place Reports</string>
 
     <string name="editplace_title">Edit place</string>
 

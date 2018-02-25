@@ -266,6 +266,7 @@ public class StartActivity extends AppCompatActivity
             onOffButton.setBackgroundTintList(ColorStateList.valueOf( getResources().getColor(colorId)));
         }
     }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -398,10 +399,6 @@ public class StartActivity extends AppCompatActivity
         listSpinner.setAdapter(adapter);
     }
 
-    public void invokeMap(View view) {
-        startActivity(new Intent(this, MapsActivity.class));
-    }
-
     public void invokePlacepicker(View view) {
 
         PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
@@ -412,10 +409,6 @@ public class StartActivity extends AppCompatActivity
         } catch (GooglePlayServicesNotAvailableException e) {
             e.printStackTrace();
         }
-    }
-
-    public void invokeReport (View view) {
-        startActivity(new Intent(this, ReportActivity.class));
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

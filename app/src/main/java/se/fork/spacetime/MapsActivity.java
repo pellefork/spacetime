@@ -1,29 +1,47 @@
 package se.fork.spacetime;
 
-import android.Manifest;
 import android.annotation.TargetApi;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
+import android.os.IBinder;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -43,15 +61,17 @@ import java.util.List;
 import se.fork.spacetime.model.LoggablePlace;
 import se.fork.spacetime.model.LoggablePlaceList;
 import se.fork.spacetime.model.MyPlaceLists;
+import se.fork.spacetime.model.Presence;
 import se.fork.spacetime.utils.Constants;
 import se.fork.spacetime.utils.LocalStorage;
 
-public class MapsActivity extends FragmentActivity implements  OnMapReadyCallback, LocationListener,  GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,GoogleMap.OnMarkerClickListener,GoogleMap.OnInfoWindowClickListener {
+public class MapsActivity extends AppCompatActivity implements  OnMapReadyCallback, LocationListener,  GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,GoogleMap.OnMarkerClickListener,GoogleMap.OnInfoWindowClickListener, NavigationView.OnNavigationItemSelectedListener {
 
     private GoogleMap mMap;
     private List<Marker> markers;
     private Spinner listSpinner;
+    private FloatingActionButton onOffButton;
     private String currentListKey;
     private LoggablePlaceList currentList;
     private FusedLocationProviderClient mFusedLocationClient;
@@ -62,10 +82,98 @@ public class MapsActivity extends FragmentActivity implements  OnMapReadyCallbac
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 99;
     private LatLngBounds defaultZoom;
 
+    private Presence presence;
+
+    private boolean requestingLocation;
+    private boolean isListDirty;
+    // A reference to the service used to get location updates.
+    private LogPlacesByLocationService mService = null;
+    // The BroadcastReceiver used to listen from broadcasts from the service.
+    private MapsActivity.MyReceiver myReceiver;
+    // Tracks the bound state of the service.
+    private boolean mBound = false;
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            LogPlacesByLocationService.LocalBinder binder = (LogPlacesByLocationService.LocalBinder) service;
+            mService = binder.getService();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mService = null;
+            mBound = false;
+        }
+    };
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        BottomNavigationView bottomNavigationView = (BottomNavigationView)
+                findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.action_map);
+        bottomNavigationView.setOnNavigationItemSelectedListener(
+                new BottomNavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.action_list:
+                                startActivity(new Intent(getApplicationContext(), StartActivity.class));
+                                break;
+                            case R.id.action_map:
+                                break;
+                            case R.id.action_report:
+                                startActivity(new Intent(getApplicationContext(), ReportActivity.class));
+                                break;
+                        }
+                        return false;
+                    }
+                });
+        FloatingActionButton addPlaceButton = findViewById(R.id.fab_add);
+        addPlaceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                invokePlacepicker(v);
+            }
+        });
+
+        onOffButton = findViewById(R.id.fab_onoff);
+        setOnOffButtonColor(R.color.powerFabOff);
+        onOffButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (requestingLocation) {
+                    stopRequestingLocations(v);
+                    setOnOffButtonColor(R.color.powerFabOff);
+                    requestingLocation = false;
+                } else {
+                    startRequestingLocations(v);
+                    setOnOffButtonColor(R.color.powerFabOn);
+                    requestingLocation = true;
+                }
+            }
+        });
+
+
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -74,6 +182,105 @@ public class MapsActivity extends FragmentActivity implements  OnMapReadyCallbac
         MyPlaceLists listLists = LocalStorage.getInstance().getMyPlaceLists(getApplicationContext());
         currentListKey = listLists.getKeys().get(0);    // TODO Get value from spinner
         currentList = LocalStorage.getInstance().getLoggablePlaceList(getApplicationContext(), currentListKey);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Bind to the service. If the service is in foreground mode, this signals to the service
+        // that since this activity is in the foreground, the service can exit foreground mode.
+        bindService(new Intent(this, LogPlacesByLocationService.class), mServiceConnection,
+                Context.BIND_AUTO_CREATE);
+    }
+
+
+
+    /**
+     * Receiver for broadcasts sent by {@link LogPlacesByLocationService}.
+     */
+    private class MyReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Location location = intent.getParcelableExtra(LogPlacesByLocationService.EXTRA_LOCATION);
+            Log.d(this.getClass().getSimpleName(), "onReceive: Activity receiving location " + location);
+            if (location != null) {
+                Toast.makeText(MapsActivity.this, location.toString(),
+                        Toast.LENGTH_SHORT).show();
+            }
+            presence = intent.getParcelableExtra(LogPlacesByLocationService.EXTRA_PRESENCE);
+            if (location != null) {
+                Toast.makeText(MapsActivity.this, presence.toString(),
+                        Toast.LENGTH_SHORT).show();
+            }
+            // listAdapter.notifyDataSetChanged();
+            // TODO Color code marker for present place?
+        }
+    }
+
+    public void startRequestingLocations(View view) {
+        mService.requestLocationUpdates();
+    }
+
+    public void stopRequestingLocations(View view) {
+        mService.removeLocationUpdates();
+    }
+
+    private void setOnOffButtonColor() {
+        if (mService != null) {
+            requestingLocation = mService.isRequestingLocationUpdates();
+        }
+        if (requestingLocation) {
+            setOnOffButtonColor(R.color.powerFabOn);
+        } else {
+            setOnOffButtonColor(R.color.powerFabOff);
+        }
+    }
+
+    private void setOnOffButtonColor(int colorId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            onOffButton.setBackgroundTintList(ColorStateList.valueOf( getResources().getColor(colorId, null)));
+        } else {
+            onOffButton.setBackgroundTintList(ColorStateList.valueOf( getResources().getColor(colorId)));
+        }
+    }
+
+    public void invokePlacepicker(View view) {
+
+        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+        try {
+            startActivityForResult(builder.build(this), Constants.PLACE_PICKER_REQUEST);
+        } catch (GooglePlayServicesRepairableException e) {
+            e.printStackTrace();
+        } catch (GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveNewLoggablePlace(Place place) {
+        currentList.getLoggablePlaces().put(place.getId(), new LoggablePlace(place));
+        LocalStorage.getInstance().saveLoggablePlaceList(currentList, this);
+        LocalStorage.getInstance().logAll(this);
+    }
+
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == Constants.PLACE_PICKER_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlacePicker.getPlace(this, data);
+                Log.d(this.getClass().getSimpleName(), "onActivityResult Place: " + place.getName() + ", latlong: " + place.getLatLng() + ", types: " + place.getPlaceTypes());
+                String toastMsg = String.format("Place: %s", place.getName());
+                Toast.makeText(this, toastMsg, Toast.LENGTH_LONG).show();
+                saveNewLoggablePlace(place);
+                removeAllMarkers();
+                setMarkersFromPlaceList();
+            }
+        } else if (requestCode == Constants.EDIT_PLACE_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                currentList = LocalStorage.getInstance().getLoggablePlaceList(this, currentListKey);
+                removeAllMarkers();
+                setMarkersFromPlaceList();
+            }
+        }
     }
 
 
@@ -106,6 +313,10 @@ public class MapsActivity extends FragmentActivity implements  OnMapReadyCallbac
         setMarkersFromPlaceList();
         Log.d(this.getClass().getSimpleName(), "onMapReady: after setting markers = " + markers);
         setRelevantZoom();
+    }
+
+    private void removeAllMarkers() {
+        mMap.clear();
     }
 
     private void setMarkersFromPlaceList() {
@@ -169,6 +380,36 @@ public class MapsActivity extends FragmentActivity implements  OnMapReadyCallbac
 
 
     // ********************** Boilerplace code only below ************************************************
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_my_lists) {
+            // Handle the camera action
+        } else if (id == R.id.nav_settings) {
+
+        } else if (id == R.id.nav_data_cleanup) {
+
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
 
     private void requestPermissions() {
         boolean shouldProvideRationale =
