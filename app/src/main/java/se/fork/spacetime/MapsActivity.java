@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
@@ -21,6 +22,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -29,6 +31,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -85,7 +89,6 @@ public class MapsActivity extends AppCompatActivity implements  OnMapReadyCallba
     private Presence presence;
 
     private boolean requestingLocation;
-    private boolean isListDirty;
     // A reference to the service used to get location updates.
     private LogPlacesByLocationService mService = null;
     // The BroadcastReceiver used to listen from broadcasts from the service.
@@ -172,7 +175,23 @@ public class MapsActivity extends AppCompatActivity implements  OnMapReadyCallba
             }
         });
 
+        listSpinner = findViewById(R.id.placelist_spinner);
+        listSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                MyPlaceLists listLists = LocalStorage.getInstance().getMyPlaceLists(getApplicationContext());
+                currentListKey = listLists.getKeys().get(i);
+                Log.d(this.getClass().getSimpleName(), "onItemSelected, i = " + i + ", key = " + currentListKey);
+                currentList = LocalStorage.getInstance().getLoggablePlaceList(getApplicationContext(), currentListKey);
+            }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        myReceiver = new MyReceiver();
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -191,6 +210,45 @@ public class MapsActivity extends AppCompatActivity implements  OnMapReadyCallba
         // that since this activity is in the foreground, the service can exit foreground mode.
         bindService(new Intent(this, LogPlacesByLocationService.class), mServiceConnection,
                 Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver,
+                new IntentFilter(LogPlacesByLocationService.ACTION_BROADCAST));
+        LocalStorage.getInstance().logAll(this);
+        populatePlaceListSpinner();
+        setOnOffButtonColor();
+    }
+
+    private void populatePlaceListSpinner() {
+        List<String> keys = LocalStorage.getInstance().getMyPlaceLists(this).getKeys();
+        List<String> listList = new ArrayList<>();
+        for(String key: keys) {
+            listList.add(LocalStorage.getInstance().getLoggablePlaceList(this, key).getName());
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, listList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        listSpinner.setAdapter(adapter);
+    }
+
+    @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        if (mBound) {
+            // Unbind from the service. This signals to the service that this activity is no longer
+            // in the foreground, and the service can respond by promoting itself to a foreground
+            // service.
+            unbindService(mServiceConnection);
+            mBound = false;
+        }
+        super.onStop();
     }
 
 
