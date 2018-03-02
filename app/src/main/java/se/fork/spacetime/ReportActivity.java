@@ -3,15 +3,23 @@ package se.fork.spacetime;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Context;
-import android.database.DataSetObserver;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.NavigationView;
+import android.support.v4.app.SupportActivity;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.DatePicker;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
@@ -38,7 +46,7 @@ import se.fork.spacetime.utils.Constants;
 import se.fork.spacetime.utils.LocalStorage;
 import se.fork.spacetime.utils.Reporter;
 
-public class ReportActivity extends Activity {
+public class ReportActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private Spinner listSpinner;
     private Spinner periodSpinner;
@@ -101,6 +109,67 @@ public class ReportActivity extends Activity {
             }
         });
         resetPeriod();
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        BottomNavigationView bottomNavigationView = (BottomNavigationView)
+                findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.action_report);
+        bottomNavigationView.setOnNavigationItemSelectedListener(
+                new BottomNavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.action_list:
+                                startActivity(new Intent(getApplicationContext(), StartActivity.class));
+                                break;
+                            case R.id.action_map:
+                                startActivity(new Intent(getApplicationContext(), MapsActivity.class));
+                                break;
+                            case R.id.action_report:
+                                break;
+                        }
+                        return false;
+                    }
+                });
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_my_lists) {
+            // Handle the camera action
+        } else if (id == R.id.nav_settings) {
+
+        } else if (id == R.id.nav_data_cleanup) {
+
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 
     private void resetPeriod() {

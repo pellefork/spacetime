@@ -51,7 +51,9 @@
             android:enabled="true"
             android:exported="false" />
 
-        <activity android:name=".ReportActivity" />
+        <activity
+            android:name=".ReportActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity
             android:name=".MainActivity"
