@@ -286,7 +286,7 @@ public class StartActivity extends AppCompatActivity
         if (id == R.id.nav_my_lists) {
             // Handle the camera action
         } else if (id == R.id.nav_settings) {
-
+            startActivity(new Intent(this, SettingsActivity.class));
         } else if (id == R.id.nav_data_cleanup) {
 
         }
