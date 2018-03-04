@@ -7,7 +7,7 @@
         android:defaultValue="0"
         android:entries="@array/list_reporting_period_entries"
         android:entryValues="@array/list_reporting_period_values"
-        android:key="sync_frequency"
+        android:key="period_list"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
         android:title="@string/pref_title_reporting_period" />

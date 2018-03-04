@@ -9,7 +9,7 @@
     <EditTextPreference
         android:defaultValue="90"
         android:inputType="number"
-        android:key="example_text"
+        android:key="data_lifetime"
         android:maxLines="1"
         android:selectAllOnFocus="true"
         android:singleLine="true"
