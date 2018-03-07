@@ -284,7 +284,7 @@ public class StartActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_my_lists) {
-            // Handle the camera action
+            startActivity(new Intent(this, MyListsActivity.class));
         } else if (id == R.id.nav_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
         } else if (id == R.id.nav_data_cleanup) {

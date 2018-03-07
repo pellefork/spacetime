@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="se.fork.spacetime.MyListsActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/gauge_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="40dp">
+
+        <pl.pawelkleczkowski.customgauge.CustomGauge
+            android:id="@+id/gauge1"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_centerHorizontal="true"
+            android:paddingBottom="20dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="20dp"
+            app:gaugePointStartColor="@color/colorAccent"
+            app:gaugePointEndColor="@color/colorAccent"
+            app:gaugePointSize="20"
+            app:gaugeStartAngle="135"
+            app:gaugeStrokeColor="@color/colorPrimary"
+            app:gaugeStrokeWidth="20dp"
+            app:gaugeDividerStep="25"
+            app:gaugeDividerColor="@color/colorWhite"
+            app:gaugeStartValue="0"
+            app:gaugeEndValue="200"
+            app:gaugeSweepAngle="270" />
+
+        <TextView
+            android:id="@+id/value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="26dp"
+            android:paddingLeft="24sp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:textSize="36sp"
+            android:textStyle="bold"
+            android:text="102%"/>
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_below="@+id/gauge_section"
+        android:padding="64dp"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/increment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:text="Increment"/>
+
+        <Button
+            android:id="@+id/decrement"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="Decrement"/>
+    </RelativeLayout>
+
+    </RelativeLayout>
+
+</android.support.constraint.ConstraintLayout>
