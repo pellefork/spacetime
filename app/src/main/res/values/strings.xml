@@ -161,5 +161,6 @@
 
     <string name="pref_title_reporting_inconsistent_switch">Show inconsistent data</string>
     <string name="pref_summary_reporting_inconsistent_switch">Show data that appears impossible or otherwise inconsistent</string>
+    <string name="title_activity_home">HomeActivity</string>
 
 </resources>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <RelativeLayout
+        android:id="@+id/gauge_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/fab_margin">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/list_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="6dp"
+                android:textStyle="bold"
+                android:textSize="24sp"
+                android:text="Work"/>
+
+            <TextView
+                android:id="@+id/goal_hours"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="6dp"
+                android:textSize="18sp"
+                android:text="Weekly goal %d h" />
+
+            <TextView
+                android:id="@+id/this_week_total"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="6dp"
+                android:textSize="18sp"
+                android:text="This week: %s" />
+
+        </LinearLayout>
+
+        <pl.pawelkleczkowski.customgauge.CustomGauge
+            android:id="@+id/gauge"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_alignParentRight="true"
+            android:paddingBottom="20dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="20dp"
+            app:gaugePointStartColor="@color/colorAccent"
+            app:gaugePointEndColor="@color/colorAccent"
+            app:gaugePointSize="20"
+            app:gaugeStartAngle="135"
+            app:gaugeStrokeColor="@color/colorPrimary"
+            app:gaugeStrokeWidth="20dp"
+            app:gaugeDividerStep="25"
+            app:gaugeDividerColor="@color/colorWhite"
+            app:gaugeStartValue="0"
+            app:gaugeEndValue="200"
+            app:gaugeSweepAngle="270">
+        </pl.pawelkleczkowski.customgauge.CustomGauge>
+
+        <TextView
+            android:id="@+id/value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="0dp"
+            android:paddingLeft="12sp"
+            android:paddingRight="40dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:text="92%"/>
+
+
+    </RelativeLayout>
+
+</LinearLayout>
