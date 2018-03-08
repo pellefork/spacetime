@@ -33,10 +33,10 @@ public class MyListsAdapter extends RecyclerView.Adapter<MyListsAdapter.MyViewHo
         LoggablePlaceList loggablePlaceList = placeListsList.get(position);
         holder.listNameView.setText(loggablePlaceList.getName());
         // TODO Calculate rest...
-        holder.gauge.setValue(98);
-        holder.valueView.setText("98");
-        holder.thisWeeksTotalView.setText("44");
-        holder.goalHoursView.setText("40");
+        holder.gauge.setValue(112);
+        holder.valueView.setText("112%");
+        holder.thisWeeksTotalView.setText("Week forecast: 44 hrs");
+        holder.goalHoursView.setText("Weekly goal: 40 hrs");
     }
 
     @Override

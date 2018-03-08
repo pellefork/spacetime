@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="@dimen/fab_margin"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/title"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:paddingBottom="@dimen/fab_margin"
+        android:text="@string/editplacelist_title"/>
+
+
+    <TextView
+        android:id="@+id/name_caption"
+        android:layout_below="@id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/editplacelist_name"/>
+
+    <EditText
+        android:id="@+id/name_view"
+        android:layout_below="@id/name_caption"
+        android:inputType="textCapSentences"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/goalhours_caption"
+        android:layout_below="@id/name_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/editplacelist_goal_hours"/>
+
+    <EditText
+        android:id="@+id/goalhours_view"
+        android:layout_below="@id/goalhours_caption"
+        android:inputType="numberDecimal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/weekdays_caption"
+        android:layout_below="@id/goalhours_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/editplacelist_goal_weekdays"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/fab_margin"
+        android:layout_below="@+id/weekdays_caption"
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical">
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/weekday_2"/>
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/weekday_3"/>
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/weekday_4"/>
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/weekday_5"/>
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/weekday_6"/>
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/weekday_7"/>
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/weekday_1"/>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/cancel_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:text="@string/edit_cancel"
+        />
+
+    <Button
+        android:id="@+id/save_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="@string/edit_save"
+        />
+
+
+</RelativeLayout>

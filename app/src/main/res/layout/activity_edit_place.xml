@@ -87,7 +87,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:text="@string/editplace_cancel"
+        android:text="@string/edit_cancel"
         />
 
     <Button
@@ -96,7 +96,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:text="@string/editplace_save"
+        android:text="@string/edit_save"
         />
 
 

@@ -24,6 +24,7 @@ import java.util.List;
 import se.fork.spacetime.adapters.MyListsAdapter;
 import se.fork.spacetime.model.LoggablePlaceList;
 import se.fork.spacetime.model.MyPlaceLists;
+import se.fork.spacetime.utils.Constants;
 import se.fork.spacetime.utils.LocalStorage;
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -38,15 +39,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_add);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         recyclerView = findViewById(R.id.recycler_view);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -80,6 +72,24 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 });
 
 
+    }
+
+    public void createNewPLaceList(View view) {
+        Intent intent = new Intent(this, EditPlaceListActivity.class);
+        intent.putExtra(Constants.EDIT_PLACELIST_CREATING_NEW, true);
+        startActivityForResult(intent, Constants.EDIT_PLACELIST_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == Constants.EDIT_PLACELIST_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                recreate(); // Edit activity will save list to LocalStorage
+            } else if (resultCode == RESULT_CANCELED) {
+
+            }
+        }
     }
 
     @Override

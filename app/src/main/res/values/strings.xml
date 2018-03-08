@@ -11,10 +11,25 @@
     <string name="editplace_latitude">Latitude</string>
     <string name="editplace_longitude">Longitude</string>
 
+
     <string name="editplace_radius">Radius in meters (to count as within)</string>
 
-    <string name="editplace_save">Save</string>
-    <string name="editplace_cancel">Cancel</string>
+    <string name="editplacelist_title">Edit place list</string>
+    <string name="editplacelist_title_new">New place list</string>
+    <string name="editplacelist_name">List name</string>
+    <string name="editplacelist_goal_hours">Goal hours per week</string>
+    <string name="editplacelist_goal_weekdays">Day(s) of week</string>
+
+    <string name="edit_save">Save</string>
+    <string name="edit_cancel">Cancel</string>
+
+    <string name="weekday_1">Sunday</string>
+    <string name="weekday_2">Monday</string>
+    <string name="weekday_3">Tuesday</string>
+    <string name="weekday_4">Wednesday</string>
+    <string name="weekday_5">Thursday</string>
+    <string name="weekday_6">Friday</string>
+    <string name="weekday_7">Saturday</string>
 
     <string name="report_status_in">In</string>
     <string name="report_status_out">Out</string>
