@@ -2,9 +2,13 @@ package se.fork.spacetime;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.util.List;
+
+import se.fork.spacetime.model.LoggablePlaceList;
 import se.fork.spacetime.utils.Constants;
 
 public class EditPlaceListActivity extends AppCompatActivity {
@@ -13,6 +17,9 @@ public class EditPlaceListActivity extends AppCompatActivity {
     private TextView titleView;
     private EditText nameView;
     private EditText goalHoursView;
+
+    private LoggablePlaceList currentList;
+    private List<String> takenNames;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,5 +46,26 @@ public class EditPlaceListActivity extends AppCompatActivity {
         if (creatingNew) {
             titleView.setText(R.string.editplacelist_title_new);
         }
+    }
+
+    private void saveNewListAndExit() {
+        currentList = new LoggablePlaceList(nameView.getText().toString());
+    }
+
+    private void saveOldListAndExit() {
+
+    }
+
+    public void save(View view) {
+        if (creatingNew) {
+            saveNewListAndExit();
+        } else {
+            saveOldListAndExit();
+        }
+
+    }
+
+    public void cancel() {
+
     }
 }

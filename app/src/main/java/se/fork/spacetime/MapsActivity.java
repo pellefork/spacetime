@@ -88,6 +88,8 @@ public class MapsActivity extends AppCompatActivity implements  OnMapReadyCallba
 
     private Presence presence;
 
+    // TODO Remove from here
+
     private boolean requestingLocation;
     // A reference to the service used to get location updates.
     private LogPlacesByLocationService mService = null;
@@ -111,7 +113,7 @@ public class MapsActivity extends AppCompatActivity implements  OnMapReadyCallba
         }
     };
 
-
+    // TODO to here
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -191,6 +193,7 @@ public class MapsActivity extends AppCompatActivity implements  OnMapReadyCallba
             }
         });
 
+        // TODO Remove line
         myReceiver = new MyReceiver();
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -203,6 +206,7 @@ public class MapsActivity extends AppCompatActivity implements  OnMapReadyCallba
         currentList = LocalStorage.getInstance().getLoggablePlaceList(getApplicationContext(), currentListKey);
     }
 
+    // TODO Remove binding
     @Override
     protected void onStart() {
         super.onStart();
@@ -232,6 +236,8 @@ public class MapsActivity extends AppCompatActivity implements  OnMapReadyCallba
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         listSpinner.setAdapter(adapter);
     }
+
+    // TODO Remove/replace from here
 
     @Override
     protected void onPause() {
@@ -301,6 +307,8 @@ public class MapsActivity extends AppCompatActivity implements  OnMapReadyCallba
             onOffButton.setBackgroundTintList(ColorStateList.valueOf( getResources().getColor(colorId)));
         }
     }
+
+    // TODO to here
 
     public void invokePlacepicker(View view) {
 

@@ -47,6 +47,16 @@
         </activity>
         <activity android:name=".EditPlaceActivity" />
 
+        <receiver
+            android:name=".GeofenceBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true" />
+
+        <service
+            android:name=".GeofenceService"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
         <service
             android:name=".LogPlacesByLocationService"
             android:enabled="true"
