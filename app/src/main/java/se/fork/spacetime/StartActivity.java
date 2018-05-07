@@ -109,7 +109,7 @@ public class StartActivity extends AppCompatActivity
     /**
      * The list of geofences used in this sample.
      */
-    private ArrayList<Geofence> mGeofenceList;
+    private List<Geofence> mGeofenceList;
 
     /**
      * Used when requesting to add or remove geofences.
@@ -204,7 +204,7 @@ public class StartActivity extends AppCompatActivity
         builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
 
         // Add the geofences to be monitored by geofencing service.
-        builder.addGeofences(geofenceList);
+        builder.addGeofences(mGeofenceList);
 
         // Return a GeofencingRequest.
         return builder.build();
@@ -223,14 +223,15 @@ public class StartActivity extends AppCompatActivity
 
         // TODO Maybe create one PendingIntent for each LoggablePlaceList. Max is five, and total number of places max is 100
 
+        if (mGeofenceList != null) {
+            mGeofenceList.clear();
+        } else {
+            mGeofenceList = new ArrayList<>();
+        }
         for (String key: listList) {
             Log.d(this.getClass().getSimpleName(), "populateGeofenceLists: In loop, key = " + key);
             LoggablePlaceList placeList = LocalStorage.getInstance().getLoggablePlaceList(this, key);
-            List<Geofence> geofenceList = createGeofenceList(placeList);
-            if (geofenceList != null) {
-                mGeofencingClient.addGeofences(getGeofencingRequest(geofenceList), getGeofencePendingIntent())
-                        .addOnCompleteListener(this);
-            }
+            mGeofenceList.addAll(createGeofenceList(placeList));
         }
     }
 
@@ -316,7 +317,7 @@ public class StartActivity extends AppCompatActivity
             showSnackbar(getString(R.string.insufficient_permissions));
             return;
         }
-
+        Log.d(this.getClass().getSimpleName(), "removeGeofences");
         mGeofencingClient.removeGeofences(getGeofencePendingIntent()).addOnCompleteListener(this);
     }
 
@@ -337,6 +338,7 @@ public class StartActivity extends AppCompatActivity
         } else {
             // Get the status code for the error and log it using a user-friendly message.
             String errorMessage = GeofenceErrorMessages.getErrorString(this, task.getException());
+            Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
             Log.w(this.getClass().getSimpleName(), errorMessage);
         }
     }
@@ -435,6 +437,8 @@ public class StartActivity extends AppCompatActivity
             return;
         }
 
+        Log.d(this.getClass().getSimpleName(), "addGeofences: " + mGeofenceList);
+
         mGeofencingClient.addGeofences(getGeofencingRequest(mGeofenceList), getGeofencePendingIntent())
             .addOnCompleteListener(this);
     }
@@ -466,6 +470,7 @@ public class StartActivity extends AppCompatActivity
         mGeofencingClient = LocationServices.getGeofencingClient(this);
 
         populateGeofenceLists();
+        updateGeofencesAdded(false);
 
         BottomNavigationView bottomNavigationView = (BottomNavigationView)
                 findViewById(R.id.bottom_navigation);
@@ -496,26 +501,23 @@ public class StartActivity extends AppCompatActivity
             }
         });
 
-/*
+
         onOffButton = findViewById(R.id.fab_onoff);
         setOnOffButtonColor(R.color.powerFabOff);
         onOffButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (requestingLocation) {
-                    stopRequestingLocations(v);
+                    removeGeofences();
                     setOnOffButtonColor(R.color.powerFabOff);
                     requestingLocation = false;
                 } else {
-                    startRequestingLocations(v);
+                    addGeofences();
                     setOnOffButtonColor(R.color.powerFabOn);
                     requestingLocation = true;
                 }
             }
         });
-
-        myReceiver = new MyReceiver();
-*/
 
 
         listSpinner = findViewById(R.id.placelist_spinner);
@@ -600,11 +602,9 @@ public class StartActivity extends AppCompatActivity
         });
     }
 
-/*
+
     private void setOnOffButtonColor() {
-        if (mService != null) {
-            requestingLocation = mService.isRequestingLocationUpdates();
-        }
+        requestingLocation = getGeofencesAdded();
         if (requestingLocation) {
             setOnOffButtonColor(R.color.powerFabOn);
         } else {
@@ -619,7 +619,7 @@ public class StartActivity extends AppCompatActivity
             onOffButton.setBackgroundTintList(ColorStateList.valueOf( getResources().getColor(colorId)));
         }
     }
-*/
+
 
     @Override
     public void onBackPressed() {

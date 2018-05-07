@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import se.fork.spacetime.BuildConfig;
+import se.fork.spacetime.model.LoggablePlace;
 import se.fork.spacetime.model.LoggablePlaceList;
 import se.fork.spacetime.model.MyPlaceLists;
 
@@ -43,6 +44,20 @@ public class LocalStorage {
             lists.addKey(list.getKey());
             saveMyPlaceLists(context, lists);
         }
+    }
+
+    public LoggablePlace getPlaceFromId(String id, Context context) {
+        LoggablePlace place = null;
+        MyPlaceLists placeLists = getMyPlaceLists(context);
+        if (placeLists != null) {
+            for (String key: placeLists.getKeys()) {
+                LoggablePlaceList list = getLoggablePlaceList(context, key);
+                if (list.getLoggablePlaces().containsKey(id)) {
+                    place = list.getLoggablePlaces().get(id);
+                }
+            }
+        }
+        return place;
     }
 
     public LoggablePlaceList getLoggablePlaceList(Context context, String key) {

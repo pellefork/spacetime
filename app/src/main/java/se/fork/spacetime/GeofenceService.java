@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import se.fork.spacetime.utils.GeofenceErrorMessages;
+import se.fork.spacetime.utils.LocalStorage;
 
 /**
  * Created by per.fork on 2018-04-26.
@@ -38,6 +39,7 @@ public class GeofenceService extends JobIntentService {
      * Convenience method for enqueuing work in to this service.
      */
     public static void enqueueWork(Context context, Intent intent) {
+        Log.d("GeofenceService", "enqueueWork: Enter method");
         enqueueWork(context, GeofenceService.class, JOB_ID, intent);
     }
 
@@ -48,6 +50,7 @@ public class GeofenceService extends JobIntentService {
      */
     @Override
     protected void onHandleWork(Intent intent) {
+        Log.d(this.getClass().getSimpleName(), "onHandleWork: Enter method");
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         if (geofencingEvent.hasError()) {
             String errorMessage = GeofenceErrorMessages.getErrorString(this,
@@ -72,7 +75,7 @@ public class GeofenceService extends JobIntentService {
 
             // Send notification and log the transition details.
             sendNotification(geofenceTransitionDetails);
-            Log.i(TAG, geofenceTransitionDetails);
+            Log.i(TAG, "onHandleWork: Geofencing transition: " + geofenceTransitionDetails);
         } else {
             // Log the error.
             Log.e(TAG, getString(R.string.geofence_transition_invalid_type, geofenceTransition));
@@ -95,7 +98,7 @@ public class GeofenceService extends JobIntentService {
         // Get the Ids of each geofence that was triggered.
         ArrayList<String> triggeringGeofencesIdsList = new ArrayList<>();
         for (Geofence geofence : triggeringGeofences) {
-            triggeringGeofencesIdsList.add(geofence.getRequestId());
+            triggeringGeofencesIdsList.add(LocalStorage.getInstance().getPlaceFromId(geofence.getRequestId(), getApplicationContext()).getName());
         }
         String triggeringGeofencesIdsString = TextUtils.join(", ",  triggeringGeofencesIdsList);
 
