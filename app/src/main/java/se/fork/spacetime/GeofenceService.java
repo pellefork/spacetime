@@ -11,6 +11,7 @@ import android.os.Build;
 import android.support.v4.app.JobIntentService;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -18,8 +19,14 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import se.fork.spacetime.database.PlaceLogEntry;
+import se.fork.spacetime.database.SpacetimeDatabase;
+import se.fork.spacetime.model.LoggablePlace;
+import se.fork.spacetime.model.LoggablePlaceList;
+import se.fork.spacetime.model.Presence;
 import se.fork.spacetime.utils.GeofenceErrorMessages;
 import se.fork.spacetime.utils.LocalStorage;
 
@@ -34,6 +41,13 @@ public class GeofenceService extends JobIntentService {
     private static final String TAG = "GeofenceTransitionsIS";
 
     private static final String CHANNEL_ID = "channel_01";
+
+    private static final String PACKAGE_NAME = "se.fork.spacetime.geofenceservice";
+
+    static final String ACTION_BROADCAST = PACKAGE_NAME + ".broadcast";
+
+    static final String EXTRA_LOCATION = PACKAGE_NAME + ".location";
+    static final String EXTRA_PRESENCE = PACKAGE_NAME + ".presence";
 
     /**
      * Convenience method for enqueuing work in to this service.
@@ -69,6 +83,8 @@ public class GeofenceService extends JobIntentService {
             // Get the geofences that were triggered. A single event can trigger multiple geofences.
             List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 
+            saveTransitionDetails(geofenceTransition, triggeringGeofences);
+
             // Get the transition details as a String.
             String geofenceTransitionDetails = getGeofenceTransitionDetails(geofenceTransition,
                     triggeringGeofences);
@@ -89,6 +105,71 @@ public class GeofenceService extends JobIntentService {
      * @param triggeringGeofences   The geofence(s) triggered.
      * @return                      The transition details formatted as String.
      */
+
+    private void saveTransitionDetails(int geofenceTransition,
+                                       List<Geofence> triggeringGeofences) {
+        for (Geofence geofence: triggeringGeofences) {
+            handleTransition(geofence, geofenceTransition);
+        }
+
+    }
+
+    private void handleTransition(Geofence geofence, int transition) {
+        Log.i(TAG, "onNewTransition: " + transition + " on " + geofence);
+
+        Presence presence = doHandleTransition(geofence, transition);
+
+        // Notify anyone listening for broadcasts about the new location.
+        Intent intent = new Intent(ACTION_BROADCAST);
+        // intent.putExtra(EXTRA_LOCATION, location);
+        intent.putExtra(EXTRA_PRESENCE, presence);
+
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+
+    }
+
+    private Presence doHandleTransition(Geofence geofence, int transition) {
+        Presence presence = null;
+        if(geofence != null) {
+            List<String> presentPlaces = new ArrayList<>();
+            List<String> keys = LocalStorage.getInstance().getMyPlaceLists(this).getKeys();
+            for(String key: keys) {
+                LoggablePlaceList placeList = LocalStorage.getInstance().getLoggablePlaceList(this, key);
+                Log.d(this.getClass().getSimpleName(), "doHandleTransition: geofence id = " + geofence.getRequestId() );
+
+
+                for(LoggablePlace place: placeList.getLoggablePlaces().values()) {
+                    if(place.isEnabled() && (place.getId().equals(geofence.getRequestId()))) {
+                        Log.d(this.getClass().getSimpleName(), "doHandleTransition: Match on place = " + place );
+                        boolean inPlace = transition == Geofence.GEOFENCE_TRANSITION_ENTER;
+                        if (place.isInside() != inPlace) {  // Only log changed insideness
+                            addLogEntry(placeList, place, inPlace);
+                            place.setInside(inPlace);
+                            LocalStorage.getInstance().saveLoggablePlaceList(placeList, this);
+                        }
+                        if (inPlace) {
+                            presentPlaces.add(place.getId());
+                        }
+                    } else {
+                        Log.d(this.getClass().getSimpleName(), "doHandleTransition: Miss on place = " + place );
+                    }
+                }
+            }
+            presence = new Presence(presentPlaces);
+        }
+        return presence;
+    }
+
+    // TODO Change timestamp to actual timestamp from queued transition rather than now. Important for Android O and above.
+
+    private void addLogEntry(LoggablePlaceList list, LoggablePlace place, boolean inPlace) {
+        PlaceLogEntry entry = new PlaceLogEntry(place.getId(), place.getName(), list.getName(), inPlace, new Date().getTime());
+        SpacetimeDatabase db = SpacetimeDatabase.getSpacetimeDatabase(this);
+        db.placeLogEntryDao().insertAll(entry);
+        Log.d(this.getClass().getSimpleName(), "addLogEntry: Wrote to db: " + entry);
+    }
+
+
     private String getGeofenceTransitionDetails(
             int geofenceTransition,
             List<Geofence> triggeringGeofences) {
