@@ -123,7 +123,7 @@ public class GeofenceService extends JobIntentService {
         Intent intent = new Intent(ACTION_BROADCAST);
         // intent.putExtra(EXTRA_LOCATION, location);
         intent.putExtra(EXTRA_PRESENCE, presence);
-
+        Log.d(this.getClass().getSimpleName(), "handleTransition: Sending broadcast with presence: " + presence);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
 
     }

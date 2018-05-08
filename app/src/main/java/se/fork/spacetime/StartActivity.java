@@ -91,6 +91,8 @@ public class StartActivity extends AppCompatActivity
     private boolean requestingLocation;
     private boolean isListDirty;
 
+    private MyReceiver myReceiver;
+
     private List<String> listList;  // The whole list of place lists
 
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
@@ -459,6 +461,8 @@ public class StartActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        myReceiver = new MyReceiver();
+
         checkPermission();
         requestingLocation = false;
 
@@ -518,7 +522,6 @@ public class StartActivity extends AppCompatActivity
                 }
             }
         });
-
 
         listSpinner = findViewById(R.id.placelist_spinner);
         listSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -677,42 +680,16 @@ public class StartActivity extends AppCompatActivity
     }
 
 
-    // TODO Remove from here
-
-    /**
-     * Receiver for broadcasts sent by {@link LogPlacesByLocationService}.
-     */
-
-
-/*
     private class MyReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Location location = intent.getParcelableExtra(LogPlacesByLocationService.EXTRA_LOCATION);
-            Log.d(this.getClass().getSimpleName(), "onReceive: Activity receiving location " + location);
-            if (location != null) {
-                Toast.makeText(StartActivity.this, location.toString(),
-                        Toast.LENGTH_SHORT).show();
-            }
-            presence = intent.getParcelableExtra(LogPlacesByLocationService.EXTRA_PRESENCE);
-            if (location != null) {
-                Toast.makeText(StartActivity.this, presence.toString(),
-                        Toast.LENGTH_SHORT).show();
-            }
+            Log.d(this.getClass().getSimpleName(), "onReceive: Receiced new transition");
+            presence = intent.getParcelableExtra(GeofenceService.EXTRA_PRESENCE);
+            Log.d(this.getClass().getSimpleName(), "onReceive: Receiced new presence: " + presence);
             listAdapter.notifyDataSetChanged();
         }
     }
 
-    public void startRequestingLocations(View view) {
-        mService.requestLocationUpdates();
-    }
-
-    public void stopRequestingLocations(View view) {
-        mService.removeLocationUpdates();
-    }
-*/
-
-    // TODO to here
 
     private void setupPlaceList() {
         currentListKeys = new LinkedList();
@@ -728,10 +705,9 @@ public class StartActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-/*
+
         LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver,
-                new IntentFilter(LogPlacesByLocationService.ACTION_BROADCAST));
-*/
+                new IntentFilter(GeofenceService.ACTION_BROADCAST));
 
         LocalStorage.getInstance().logAll(this);
         populatePlaceListSpinner();
@@ -741,7 +717,7 @@ public class StartActivity extends AppCompatActivity
     }
 
     // TODO Maybe remove
-/*
+
     @Override
     protected void onPause() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
@@ -749,19 +725,6 @@ public class StartActivity extends AppCompatActivity
     }
 
 
-    @Override
-    protected void onStop() {
-        if (mBound) {
-            // Unbind from the service. This signals to the service that this activity is no longer
-            // in the foreground, and the service can respond by promoting itself to a foreground
-            // service.
-            unbindService(mServiceConnection);
-            mBound = false;
-        }
-        super.onStop();
-    }
-
-*/
     private void fetchPlaceLists() {
         listList = LocalStorage.getInstance().getMyPlaceLists(this).getKeys();
     }
