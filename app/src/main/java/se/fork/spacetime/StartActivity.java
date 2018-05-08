@@ -14,6 +14,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -42,6 +43,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -81,7 +83,8 @@ public class StartActivity extends AppCompatActivity
         implements GoogleApiClient.OnConnectionFailedListener, NavigationView.OnNavigationItemSelectedListener, OnCompleteListener<Void> {
 
     private Spinner listSpinner;
-    private FloatingActionButton onOffButton;
+    // private FloatingActionButton onOffButton;
+    private ImageButton onOffButton;
     private String currentListKey;
     private LoggablePlaceList currentList;
     private List<String> currentListKeys;
@@ -506,7 +509,7 @@ public class StartActivity extends AppCompatActivity
         });
 
 
-        onOffButton = findViewById(R.id.fab_onoff);
+        onOffButton = findViewById(R.id.onoff);
         setOnOffButtonColor(R.color.powerFabOff);
         onOffButton.setOnClickListener(new View.OnClickListener() {
             @Override
